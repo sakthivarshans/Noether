@@ -1,3 +1,16 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "mascot",
+      "description": "Friendly AI robot mascot for Noether.",
+      "imageUrl": "https://picsum.photos/seed/mascot/200/200",
+      "imageHint": "robot mascot"
+    },
+    {
+      "id": "user-avatar",
+      "description": "Default user avatar.",
+      "imageUrl": "https://picsum.photos/seed/avatar/100/100",
+      "imageHint": "user avatar"
+    }
+  ]
 }
