@@ -17,7 +17,17 @@ const EnhancedTopicSearchInputSchema = z.object({
 export type EnhancedTopicSearchInput = z.infer<typeof EnhancedTopicSearchInputSchema>;
 
 const EnhancedTopicSearchOutputSchema = z.object({
-  summary: z.string().describe('A summary of the top search results for the topic.'),
+  summary: z
+    .string()
+    .describe('A concise and informative summary of the top search results for the topic.'),
+  references: z
+    .array(
+      z.object({
+        title: z.string().describe('The title of the tutorial or article.'),
+        url: z.string().url().describe('The URL of the resource.'),
+      })
+    )
+    .describe('A list of 3-5 novel, high-quality tutorial links from the internet with good content.'),
 });
 export type EnhancedTopicSearchOutput = z.infer<typeof EnhancedTopicSearchOutputSchema>;
 
@@ -29,7 +39,7 @@ const enhancedTopicSearchPrompt = ai.definePrompt({
   name: 'enhancedTopicSearchPrompt',
   input: {schema: EnhancedTopicSearchInputSchema},
   output: {schema: EnhancedTopicSearchOutputSchema},
-  prompt: `Summarize the top search results for the topic "{{topic}}". Provide a concise and informative summary.
+  prompt: `You are a helpful research assistant. For the topic "{{topic}}", provide a concise and informative summary. Additionally, find 3-5 novel, high-quality tutorial links from the internet with good content.
 `,
 });
 

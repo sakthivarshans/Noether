@@ -3,9 +3,10 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Search, Loader2 } from 'lucide-react';
+import { Search, Loader2, Link as LinkIcon } from 'lucide-react';
 import { enhancedTopicSearch, EnhancedTopicSearchOutput } from '@/ai/flows/enhanced-topic-search';
 import { useToast } from '@/hooks/use-toast';
+import Link from 'next/link';
 
 export default function SearchPage() {
   const [query, setQuery] = useState("Newton's Laws of Motion");
@@ -37,7 +38,7 @@ export default function SearchPage() {
       <Card>
         <CardHeader>
           <CardTitle>Enhanced Topic Search</CardTitle>
-          <CardDescription>Enter a topic to get an AI-powered summary of it.</CardDescription>
+          <CardDescription>Enter a topic to get an AI-powered summary and relevant links.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex w-full items-center space-x-2">
@@ -71,6 +72,24 @@ export default function SearchPage() {
              <div className="prose dark:prose-invert max-w-none">
                 <p>{result.summary}</p>
              </div>
+             {result.references && result.references.length > 0 && (
+                <div className="mt-6">
+                    <h3 className="text-lg font-semibold mb-3">References</h3>
+                    <ul className="space-y-3">
+                        {result.references.map((ref, index) => (
+                            <li key={index}>
+                                <Link href={ref.url} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-3 p-3 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors">
+                                   <LinkIcon className="h-4 w-4 text-muted-foreground group-hover:text-primary"/>
+                                   <div>
+                                     <p className="font-medium text-primary group-hover:underline">{ref.title}</p>
+                                     <p className="text-xs text-muted-foreground truncate">{ref.url}</p>
+                                   </div>
+                                </Link>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+             )}
           </CardContent>
         </Card>
       )}
