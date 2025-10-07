@@ -38,10 +38,10 @@ export const GameScoreProvider = ({ children }: { children: ReactNode }) => {
     return collection(firestore, scoresCollectionPath);
   }, [scoresCollectionPath, firestore]);
 
-  const { data: allScores = [] } = useCollection<Omit<GameScore, 'id'>>(scoresQuery);
+  const { data: allScores } = useCollection<Omit<GameScore, 'id'>>(scoresQuery);
 
   const weeklyScores = useMemo(() => {
-    return allScores.filter(score => isThisWeek(new Date(score.playedDate), { weekStartsOn: 1 }));
+    return (allScores || []).filter(score => isThisWeek(new Date(score.playedDate), { weekStartsOn: 1 }));
   }, [allScores]);
 
   const totalScore = useMemo(() => {
@@ -71,6 +71,7 @@ export const GameScoreProvider = ({ children }: { children: ReactNode }) => {
     totalScore,
     getHighScore,
     addScore,
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }), [weeklyScores, totalScore]);
 
 
