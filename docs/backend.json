@@ -1,0 +1,490 @@
+{
+  "entities": {
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents a user's profile in the Noether application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserProfile entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "User's email address.",
+          "format": "email"
+        },
+        "name": {
+          "type": "string",
+          "description": "User's full name."
+        },
+        "college": {
+          "type": "string",
+          "description": "User's college or university."
+        },
+        "degree": {
+          "type": "string",
+          "description": "User's degree program."
+        },
+        "summary": {
+          "type": "string",
+          "description": "A brief bio or summary about the user."
+        },
+        "projects": {
+          "type": "string",
+          "description": "List of projects user has worked on (supports markdown)."
+        },
+        "hobbies": {
+          "type": "string",
+          "description": "User's hobbies."
+        },
+        "goals": {
+          "type": "string",
+          "description": "User's goals."
+        },
+        "skills": {
+          "type": "string",
+          "description": "User's skills."
+        },
+        "profileImageUrl": {
+          "type": "string",
+          "description": "URL of the user's profile image.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "name"
+      ]
+    },
+    "Document": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Document",
+      "type": "object",
+      "description": "Represents a document uploaded by the user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Document entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N Document)"
+        },
+        "fileName": {
+          "type": "string",
+          "description": "Name of the uploaded file."
+        },
+        "fileType": {
+          "type": "string",
+          "description": "Type of the uploaded file (e.g., pptx, pdf)."
+        },
+        "uploadDate": {
+          "type": "string",
+          "description": "Date and time when the file was uploaded.",
+          "format": "date-time"
+        },
+        "summary": {
+          "type": "string",
+          "description": "AI-generated summary of the document content."
+        },
+        "importantTopics": {
+          "type": "string",
+          "description": "AI-generated highlights of important topics in the document."
+        },
+        "flashcardIds": {
+          "type": "array",
+          "description": "References to Flashcards generated from the document. (Relationship: Document 1:N Flashcard)",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "fileName",
+        "fileType",
+        "uploadDate"
+      ]
+    },
+    "Flashcard": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Flashcard",
+      "type": "object",
+      "description": "Represents a flashcard generated from a document.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Flashcard entity."
+        },
+        "documentId": {
+          "type": "string",
+          "description": "Reference to Document. (Relationship: Document 1:N Flashcard)"
+        },
+        "question": {
+          "type": "string",
+          "description": "The question on the flashcard."
+        },
+        "answer": {
+          "type": "string",
+          "description": "The answer to the question on the flashcard."
+        }
+      },
+      "required": [
+        "id",
+        "documentId",
+        "question",
+        "answer"
+      ]
+    },
+    "PastYearQuestion": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "PastYearQuestion",
+      "type": "object",
+      "description": "Represents a past year question (PYQ) file.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the PastYearQuestion entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N PastYearQuestion)"
+        },
+        "fileName": {
+          "type": "string",
+          "description": "Name of the uploaded PYQ file."
+        },
+        "uploadDate": {
+          "type": "string",
+          "description": "Date and time when the PYQ file was uploaded.",
+          "format": "date-time"
+        },
+        "answers": {
+          "type": "string",
+          "description": "AI-generated answers for the questions in the PYQ file."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "fileName",
+        "uploadDate",
+        "answers"
+      ]
+    },
+    "Timetable": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Timetable",
+      "type": "object",
+      "description": "Represents a user's study timetable.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Timetable entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N Timetable)"
+        },
+        "subjects": {
+          "type": "string",
+          "description": "Subjects covered in the timetable."
+        },
+        "studyHours": {
+          "type": "number",
+          "description": "Total study hours in the timetable."
+        },
+        "generatedDate": {
+          "type": "string",
+          "description": "Date when the timetable was generated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "subjects",
+        "studyHours",
+        "generatedDate"
+      ]
+    },
+    "TodoTask": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "TodoTask",
+      "type": "object",
+      "description": "Represents a to-do task or assignment.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the TodoTask entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N TodoTask)"
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the to-do task."
+        },
+        "deadline": {
+          "type": "string",
+          "description": "Deadline for the to-do task.",
+          "format": "date-time"
+        },
+        "completed": {
+          "type": "boolean",
+          "description": "Indicates if the task is completed."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "title",
+        "deadline",
+        "completed"
+      ]
+    },
+    "VoiceNote": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "VoiceNote",
+      "type": "object",
+      "description": "Represents a voice-to-text note.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the VoiceNote entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N VoiceNote)"
+        },
+        "text": {
+          "type": "string",
+          "description": "Text content of the voice note."
+        },
+        "createdDate": {
+          "type": "string",
+          "description": "Date and time when the voice note was created.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "text",
+        "createdDate"
+      ]
+    },
+    "GameScore": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "GameScore",
+      "type": "object",
+      "description": "Represents the score for a brain game.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the GameScore entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N GameScore)"
+        },
+        "gameName": {
+          "type": "string",
+          "description": "Name of the game."
+        },
+        "score": {
+          "type": "number",
+          "description": "User's score in the game."
+        },
+        "playedDate": {
+          "type": "string",
+          "description": "Date and time when the game was played.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "gameName",
+        "score",
+        "playedDate"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores user profile information.  Owned by the user (path-based ownership).",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/documents/{documentId}",
+        "definition": {
+          "entityName": "Document",
+          "schema": {
+            "$ref": "#/backend/entities/Document"
+          },
+          "description": "Stores documents uploaded by the user. Owned by the user (path-based ownership). Includes denormalized 'userId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "documentId",
+              "description": "The unique identifier for the document."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/documents/{documentId}/flashcards/{flashcardId}",
+        "definition": {
+          "entityName": "Flashcard",
+          "schema": {
+            "$ref": "#/backend/entities/Flashcard"
+          },
+          "description": "Stores flashcards generated from documents. Owned by the user (path-based ownership). Includes denormalized 'userId' and 'documentId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "documentId",
+              "description": "The unique identifier for the document."
+            },
+            {
+              "name": "flashcardId",
+              "description": "The unique identifier for the flashcard."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/past_year_questions/{pastYearQuestionId}",
+        "definition": {
+          "entityName": "PastYearQuestion",
+          "schema": {
+            "$ref": "#/backend/entities/PastYearQuestion"
+          },
+          "description": "Stores past year question files uploaded by the user. Owned by the user (path-based ownership). Includes denormalized 'userId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "pastYearQuestionId",
+              "description": "The unique identifier for the past year question."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/timetables/{timetableId}",
+        "definition": {
+          "entityName": "Timetable",
+          "schema": {
+            "$ref": "#/backend/entities/Timetable"
+          },
+          "description": "Stores study timetables generated by the user. Owned by the user (path-based ownership). Includes denormalized 'userId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "timetableId",
+              "description": "The unique identifier for the timetable."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/todo_tasks/{todoTaskId}",
+        "definition": {
+          "entityName": "TodoTask",
+          "schema": {
+            "$ref": "#/backend/entities/TodoTask"
+          },
+          "description": "Stores to-do tasks created by the user. Owned by the user (path-based ownership). Includes denormalized 'userId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "todoTaskId",
+              "description": "The unique identifier for the to-do task."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/voice_notes/{voiceNoteId}",
+        "definition": {
+          "entityName": "VoiceNote",
+          "schema": {
+            "$ref": "#/backend/entities/VoiceNote"
+          },
+          "description": "Stores voice-to-text notes created by the user. Owned by the user (path-based ownership). Includes denormalized 'userId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "voiceNoteId",
+              "description": "The unique identifier for the voice note."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/game_scores/{gameScoreId}",
+        "definition": {
+          "entityName": "GameScore",
+          "schema": {
+            "$ref": "#/backend/entities/GameScore"
+          },
+          "description": "Stores game scores recorded by the user. Owned by the user (path-based ownership). Includes denormalized 'userId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "gameScoreId",
+              "description": "The unique identifier for the game score."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to be secure, scalable, and easily debuggable, following the core design principles and strategy mandates. It uses path-based ownership and denormalization to achieve authorization independence and support the required QAPs. Each user owns their data (Profile, Documents, Flashcards, PastYearQuestions, Timetables, TodoTasks, VoiceNotes, and GameScores). This enables simple and robust security rules based solely on `request.auth.uid`, avoiding complex hierarchical authorization dependencies (`get()`).\n\nSpecifically, the structure employs the following strategies:\n\n*   **Authorization Independence:** Each document includes the `userId`, allowing security rules to validate ownership without needing to `get()` the user's profile. This denormalization is crucial for atomic operations.\n*   **Structural Segregation:** Each top-level collection (`/users/{userId}/documents`, etc.) is dedicated to a specific entity type, ensuring a homogeneous security posture within each collection.\n*   **Access Modeling:** Consistent path-based ownership (`/users/{userId}/...`) simplifies security rules and reflects the `User 1:N Entity` relationship. Subcollections continue the hierarchy (e.g., `/users/{userId}/documents/{documentId}/flashcards/{flashcardId}`).\n\nThis structure facilitates secure `list` operations because access control is directly tied to the path and the `request.auth.uid`, ensuring that users can only list documents/data they own."
+  }
+}
