@@ -6,14 +6,26 @@ import { useRouter } from 'next/navigation';
 import { User, LogIn, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { useFirebase, useUser } from '@/firebase';
-import { useEffect } from 'react';
-import { signInWithGoogle, signOut } from '@/firebase/auth';
+import { useEffect, useState } from 'react';
+import { signInWithGoogle, signOut, handleRedirectResult } from '@/firebase/auth';
 
 
 export default function LandingPage() {
   const router = useRouter();
   const { auth } = useFirebase();
   const { user, isUserLoading } = useUser();
+  const [isHandlingRedirect, setIsHandlingRedirect] = useState(true);
+
+  useEffect(() => {
+     if (auth) {
+        handleRedirectResult(auth).then(() => {
+            setIsHandlingRedirect(false);
+        });
+     } else {
+        setIsHandlingRedirect(false);
+     }
+  }, [auth]);
+
 
   useEffect(() => {
     if (user) {
@@ -33,6 +45,8 @@ export default function LandingPage() {
     }
   };
 
+  const isLoading = isUserLoading || isHandlingRedirect;
+
 
   return (
     <div className="flex h-screen w-full flex-col bg-gradient-to-br from-background via-secondary to-accent">
@@ -51,14 +65,14 @@ export default function LandingPage() {
               </Link>
             </Button>
             {user ? (
-              <Button onClick={handleSignOut} disabled={isUserLoading}>
+              <Button onClick={handleSignOut} disabled={isLoading}>
                 <LogOut className="mr-2 h-4 w-4" />
-                {isUserLoading ? 'Loading...' : 'Sign Out'}
+                {isLoading ? 'Loading...' : 'Sign Out'}
               </Button>
             ) : (
-              <Button onClick={handleSignIn} disabled={isUserLoading}>
+              <Button onClick={handleSignIn} disabled={isLoading}>
                  <LogIn className="mr-2 h-4 w-4" />
-                {isUserLoading ? 'Loading...' : 'Sign In'}
+                {isLoading ? 'Loading...' : 'Sign In'}
               </Button>
             )}
           </nav>
@@ -77,7 +91,7 @@ export default function LandingPage() {
         </p>
         <Button
           onClick={handleSignIn}
-          disabled={isUserLoading}
+          disabled={isLoading}
           className="mt-10 group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-purple-600 to-blue-500 px-10 py-4 font-medium text-white shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl"
           size="lg"
         >
