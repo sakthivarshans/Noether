@@ -30,7 +30,7 @@ export default function GamesPage() {
             <Card className="group h-full flex flex-col justify-between hover:bg-accent hover:border-primary/50 transition-all transform hover:-translate-y-1">
               <div>
                 <CardHeader>
-                  <CardTitle>{game.name}</CardTitle>
+                  <CardTitle className="font-bold">{game.name}</CardTitle>
                   <CardDescription>{game.description}</CardDescription>
                 </CardHeader>
                 <CardContent>

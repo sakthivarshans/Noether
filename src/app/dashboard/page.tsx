@@ -2,7 +2,6 @@
 
 import {
   BookOpen,
-  BrainCircuit,
   Calendar,
   FileQuestion,
   ListTodo,
@@ -12,27 +11,23 @@ import {
   Search,
   Timer,
   Upload,
-  Bed,
 } from 'lucide-react';
 import Link from 'next/link';
-import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import Mascot from '@/components/mascot';
 import { Button } from '@/components/ui/button';
 import { quotes } from '@/lib/data';
 import React from 'react';
 
 const tools = [
-  { href: '/dashboard/upload', label: 'Upload Document', icon: Upload, description: 'Summarize & analyze docs' },
-  { href: '/dashboard/pyq', label: 'PYQ Solver', icon: FileQuestion, description: 'Get answers for past papers' },
-  { href: '/dashboard/notes', label: 'Voice Notes', icon: Mic, description: 'Record and transcribe thoughts' },
-  { href: '/dashboard/search', label: 'Topic Search', icon: Search, description: 'Explore any topic' },
-  { href: '/dashboard/timetable', label: 'Timetable', icon: Calendar, description: 'Generate a study schedule' },
-  { href: '/dashboard/todo', label: 'To-Do List', icon: ListTodo, description: 'Track tasks and deadlines' },
-  { href: '/dashboard/pomodoro', label: 'Pomodoro', icon: Timer, description: 'Stay focused with timers' },
-  { href: '/dashboard/power-nap', label: 'Power Nap', icon: Bed, description: 'Quick recharge for your brain' },
-  { href: '/dashboard/flashcards', label: 'Flashcards', icon: BookOpen, description: 'Memorize key concepts' },
-  { href: '/dashboard/games', label: 'Brain Games', icon: Puzzle, description: 'Fun challenges to sharpen mind' },
-  { href: '/dashboard/music', label: 'Focus Music', icon: Music, description: 'Instrumental tracks for study' },
+  { href: '/dashboard/upload', label: 'Upload Document', icon: Upload, description: 'Upload PPT/PDF for AI summaries and flashcards' },
+  { href: '/dashboard/timetable', label: 'Timetable', icon: Calendar, description: 'Generate your personalized study schedule' },
+  { href: '/dashboard/todo', label: 'To-Do List', icon: ListTodo, description: 'Track assignments and deadlines' },
+  { href: '/dashboard/flashcards', label: 'Flashcards', icon: BookOpen, description: 'Review with AI-generated flashcards' },
+  { href: '/dashboard/games', label: 'Games', icon: Puzzle, description: 'Take a brain break with fun games' },
+  { href: '/dashboard/music', label: 'Focus Music', icon: Music, description: 'Listen to concentration-boosting tracks' },
+  { href: '/dashboard/pyq', label: 'PYQ Answers', icon: FileQuestion, description: 'Get AI-generated answers for past papers' },
+  { href: '/dashboard/pomodoro', label: 'Pomodoro', icon: Timer, description: 'Stay focused with 25-minute sessions' },
 ];
 
 function QuoteRotator() {
@@ -70,23 +65,25 @@ export default function Dashboard() {
         </div>
       </div>
       
-      <div className="my-6">
+      <div className="text-center my-8">
+        <h2 className="text-2xl font-bold font-headline mb-2 text-foreground/80">Your Study Tools</h2>
         <QuoteRotator />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {tools.map((tool) => (
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {tools.map((tool, index) => (
           <Link href={tool.href} key={tool.href}>
-            <Card className="h-full hover:bg-accent hover:border-primary/50 transition-all transform hover:-translate-y-1">
-              <CardHeader className="flex flex-row items-center gap-4 space-y-0">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                   <tool.icon className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <CardTitle>{tool.label}</CardTitle>
-                  <CardDescription>{tool.description}</CardDescription>
-                </div>
-              </CardHeader>
+            <Card className="group h-full p-6 text-center flex flex-col items-center justify-center rounded-2xl transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/20">
+              <div 
+                className={`absolute inset-0 rounded-2xl opacity-80 group-hover:opacity-100 transition-opacity duration-300 ${index % 3 === 0 ? 'bg-gradient-to-br from-purple-100 to-blue-100' : index % 3 === 1 ? 'bg-gradient-to-br from-green-100 to-cyan-100' : 'bg-gradient-to-br from-purple-100 to-pink-100'} dark:from-purple-900/20 dark:to-blue-900/20`}>
+              </div>
+              <div className="relative flex flex-col items-center justify-center">
+                  <div className="p-4 bg-white/50 dark:bg-black/20 rounded-full mb-4">
+                    <tool.icon className="h-8 w-8 text-primary" />
+                  </div>
+                  <h3 className="font-bold text-lg text-foreground">{tool.label}</h3>
+                  <p className="text-sm text-muted-foreground mt-1">{tool.description}</p>
+              </div>
             </Card>
           </Link>
         ))}
