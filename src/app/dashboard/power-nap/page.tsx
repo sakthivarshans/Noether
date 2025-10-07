@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -27,15 +27,19 @@ const problems = [
   { q: '36 ÷ 6', a: '6' },
   { q: '9 × 7', a: '63' },
   { q: '12 + 19', a: '31' },
+  { q: '5 × 5', a: '25' },
+  { q: '100 - 42', a: '58'},
 ];
 
 export default function PowerNapPage() {
-  const [duration, setDuration] = useState(20);
+  const [duration, setDuration] = useState(15);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [isActive, setIsActive] = useState(false);
   const [showAlarm, setShowAlarm] = useState(false);
   const [problem, setProblem] = useState(problems[0]);
   const [answer, setAnswer] = useState('');
+  const synthRef = useRef<Tone.Synth | null>(null);
+  const loopRef = useRef<Tone.Loop | null>(null);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -60,25 +64,35 @@ export default function PowerNapPage() {
 
   const handleAlarm = async () => {
     await Tone.start();
-    const synth = new Tone.Synth().toDestination();
-    Tone.Transport.scheduleRepeat((time) => {
-        synth.triggerAttackRelease("C5", "8n", time);
-    }, "4n");
+    synthRef.current = new Tone.Synth().toDestination();
+    
+    // Math.random() is safe here as it's a client component
+    const randomProblem = problems[Math.floor(Math.random() * problems.length)];
+    setProblem(randomProblem);
+
+    loopRef.current = new Tone.Loop((time) => {
+        synthRef.current?.triggerAttackRelease("C5", "8n", time);
+    }, "2n").start(0);
+
     Tone.Transport.start();
-    setProblem(problems[Math.floor(Math.random() * problems.length)]);
     setShowAlarm(true);
   };
 
   const stopAlarm = () => {
     if (answer.trim() === problem.a) {
-      Tone.Transport.stop();
-      Tone.Transport.cancel();
+      if (loopRef.current) {
+        loopRef.current.stop(0);
+        Tone.Transport.stop();
+        Tone.Transport.cancel();
+        loopRef.current.dispose();
+        synthRef.current?.dispose();
+      }
       setShowAlarm(false);
       setAnswer('');
       setTimeLeft(null);
     } else {
+      // Shake animation or incorrect feedback
       setAnswer('');
-      // Maybe give feedback
     }
   };
   
@@ -105,9 +119,9 @@ export default function PowerNapPage() {
             </p>
             {!isActive && (
               <Slider
-                defaultValue={[20]}
+                defaultValue={[15]}
                 max={30}
-                min={10}
+                min={5}
                 step={5}
                 onValueChange={(value) => setDuration(value[0])}
               />
@@ -128,7 +142,7 @@ export default function PowerNapPage() {
       </Card>
       
       <AlertDialog open={showAlarm}>
-        <AlertDialogContent>
+        <AlertDialogContent onEscapeKeyDown={(e) => e.preventDefault()} onPointerDownOutside={(e) => e.preventDefault()}>
           <AlertDialogHeader>
             <AlertDialogTitle>Time to Wake Up!</AlertDialogTitle>
             <AlertDialogDescription>
