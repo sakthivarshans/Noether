@@ -4,45 +4,56 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Upload, FileText, Zap, BrainCircuit, BarChart3, Loader2 } from 'lucide-react';
-
-// Mock AI response for UI development
-const mockApiResponse = {
-  summary: "This document provides a comprehensive overview of cellular respiration, detailing the processes of glycolysis, the Krebs cycle, and oxidative phosphorylation. It explains how ATP is generated and the role of various enzymes.",
-  highlights: [
-    "Glycolysis occurs in the cytoplasm and converts glucose into pyruvate.",
-    "The Krebs cycle (or citric acid cycle) takes place in the mitochondrial matrix.",
-    "Oxidative phosphorylation is the main source of ATP in aerobic organisms.",
-    "Electron transport chain is a key component of oxidative phosphorylation."
-  ],
-  flashcards: [
-    { question: "Where does glycolysis occur?", answer: "In the cytoplasm." },
-    { question: "What is the main product of the Krebs cycle?", answer: "ATP, NADH, and FADH2." },
-    { question: "What is the primary function of the electron transport chain?", answer: "To create a proton gradient for ATP synthesis." }
-  ],
-  flowchart: "Glucose -> Glycolysis -> Pyruvate -> Krebs Cycle -> Electron Transport Chain -> ATP"
-};
+import { summarizeAndHighlightDocument, SummarizeAndHighlightDocumentOutput } from '@/ai/flows/summarize-and-highlight-document';
+import { generateFlashcardsFromDocument } from '@/ai/flows/generate-flashcards-from-document';
 
 export default function UploadPage() {
   const [fileName, setFileName] = useState<string | null>(null);
+  const [fileDataUri, setFileDataUri] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [result, setResult] = useState<typeof mockApiResponse | null>(null);
+  const [result, setResult] = useState<SummarizeAndHighlightDocumentOutput | null>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       setFileName(file.name);
       setResult(null);
+      const reader = new FileReader();
+      reader.onload = (loadEvent) => {
+        setFileDataUri(loadEvent.target?.result as string);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
   const handleUpload = async () => {
-    if (!fileName) return;
+    if (!fileDataUri) return;
     setIsProcessing(true);
-    // Placeholder for actual API call to Gemini
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setResult(mockApiResponse);
-    setIsProcessing(false);
+    try {
+        const response = await summarizeAndHighlightDocument({ documentDataUri: fileDataUri });
+        setResult(response);
+    } catch (e) {
+        console.error(e);
+        // You might want to show a toast notification here
+    } finally {
+        setIsProcessing(false);
+    }
   };
+  
+  const handleGenerateFlashcards = async () => {
+    if(!result || !result.summary) return;
+
+    try {
+      const flashcardResult = await generateFlashcardsFromDocument({ documentContent: result.summary });
+      // For now, let's just log the result. 
+      // In a real implementation, you'd want to display these flashcards.
+      console.log(flashcardResult);
+      alert(`${flashcardResult.flashcards.length} flashcards generated! Check the console.`);
+    } catch (e) {
+      console.error(e);
+      alert('Failed to generate flashcards.');
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -95,18 +106,16 @@ export default function UploadPage() {
           </Card>
           
           <Card className="lg:col-span-2">
-            <CardHeader>
+            <CardHeader className="flex flex-row justify-between items-center">
               <CardTitle className="flex items-center gap-2"><BrainCircuit className="w-5 h-5" /> Generated Flashcards</CardTitle>
+              <Button onClick={handleGenerateFlashcards} variant="outline" size="sm">Generate New</Button>
             </CardHeader>
             <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {result.flashcards.map((flashcard, index) => (
                 <Card key={index} className="bg-secondary">
                   <CardHeader>
-                    <CardTitle className="text-sm">Q: {flashcard.question}</CardTitle>
+                    <CardTitle className="text-sm">Q: {flashcard}</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground">A: {flashcard.answer}</p>
-                  </CardContent>
                 </Card>
               ))}
             </CardContent>
@@ -119,11 +128,10 @@ export default function UploadPage() {
               </CardHeader>
               <CardContent>
                 <div className="p-4 bg-secondary rounded-lg">
-                  <p className="font-mono text-sm text-muted-foreground">{result.flowchart}</p>
+                  <p className="font-mono text-sm text-muted-foreground whitespace-pre-wrap">{result.flowchart}</p>
                 </div>
               </CardContent>
             </Card>
-          </Card>
           )}
         </div>
       )}
