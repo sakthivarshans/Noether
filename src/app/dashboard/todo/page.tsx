@@ -14,9 +14,11 @@ export default function TodoPage() {
   const [newDeadline, setNewDeadline] = useState('');
 
   const handleAddTask = () => {
-    addTask(newTaskTitle, newDeadline);
-    setNewTaskTitle('');
-    setNewDeadline('');
+    if (newTaskTitle && newDeadline) {
+      addTask(newTaskTitle, newDeadline);
+      setNewTaskTitle('');
+      setNewDeadline('');
+    }
   };
 
 

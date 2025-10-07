@@ -1,43 +1,57 @@
 'use client';
 
-import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useEffect, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { differenceInMinutes } from 'date-fns';
+import { useUser } from '@/firebase';
+import { useCollection } from '@/firebase/firestore/use-collection';
+import {
+  addDocumentNonBlocking,
+  updateDocumentNonBlocking,
+  deleteDocumentNonBlocking,
+} from '@/firebase/non-blocking-updates';
+import { collection, doc, where, query } from 'firebase/firestore';
+import { useFirestore, useMemoFirebase } from '@/firebase/provider';
 
 export interface Task {
-  id: number;
+  id: string; // Changed from number to string for Firestore
   title: string;
   deadline: string;
   completed: boolean;
+  userId: string;
 }
 
 interface TaskContextType {
   tasks: Task[];
   addTask: (title: string, deadline: string) => void;
-  toggleTaskCompletion: (id: number) => void;
-  deleteTask: (id: number) => void;
+  toggleTaskCompletion: (id: string) => void;
+  deleteTask: (id: string) => void;
 }
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
 
 export const TaskProvider = ({ children }: { children: ReactNode }) => {
-  const [tasks, setTasks] = useState<Task[]>([
-    { id: 1, title: 'Finish Math Assignment', deadline: new Date(Date.now() + 60 * 60 * 1000).toISOString(), completed: false },
-    { id: 2, title: 'Prepare for Physics Quiz', deadline: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(), completed: false },
-    { id: 3, title: 'Read Chapter 5 of History book', deadline: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), completed: true },
-  ]);
+  const { user } = useUser();
+  const firestore = useFirestore();
   const { toast } = useToast();
-  const [notifiedTasks, setNotifiedTasks] = useState<number[]>([]);
+  const [notifiedTasks, setNotifiedTasks] = useState<string[]>([]);
 
+  const tasksQuery = useMemoFirebase(() => {
+    if (!user || !firestore) return null;
+    return query(collection(firestore, 'todoTasks'), where('userId', '==', user.uid));
+  }, [user, firestore]);
+
+  const { data: tasks = [], isLoading } = useCollection<Omit<Task, 'id'>>(tasksQuery);
 
   useEffect(() => {
     const checkDeadlines = () => {
+      if (isLoading) return;
       tasks.forEach(task => {
         if (!task.completed && !notifiedTasks.includes(task.id)) {
           const now = new Date();
           const deadlineDate = new Date(task.deadline);
           const minutesUntilDeadline = differenceInMinutes(deadlineDate, now);
-          
+
           if (minutesUntilDeadline > 0 && minutesUntilDeadline <= 45) {
             toast({
               title: 'Deadline Approaching!',
@@ -52,34 +66,43 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
     const intervalId = setInterval(checkDeadlines, 60000); // Check every minute
 
     return () => clearInterval(intervalId);
-  }, [tasks, toast, notifiedTasks]);
-
+  }, [tasks, toast, notifiedTasks, isLoading]);
 
   const addTask = (title: string, deadline: string) => {
-    if (!title || !deadline) return;
-    const newTask: Task = {
-      id: Date.now(),
+    if (!title || !deadline || !user || !firestore) return;
+    const newTask = {
       title,
       deadline,
       completed: false,
+      userId: user.uid,
     };
-    setTasks(prevTasks => [...prevTasks, newTask]);
+    const collectionRef = collection(firestore, 'todoTasks');
+    addDocumentNonBlocking(collectionRef, newTask);
   };
 
-  const toggleTaskCompletion = (id: number) => {
-    setTasks(
-      tasks.map(task =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
-    );
+  const toggleTaskCompletion = (id: string) => {
+    if (!firestore) return;
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+    const docRef = doc(firestore, 'todoTasks', id);
+    updateDocumentNonBlocking(docRef, { completed: !task.completed });
   };
 
-  const deleteTask = (id: number) => {
-    setTasks(tasks.filter(task => task.id !== id));
+  const deleteTask = (id: string) => {
+    if (!firestore) return;
+    const docRef = doc(firestore, 'todoTasks', id);
+    deleteDocumentNonBlocking(docRef);
   };
+
+  const contextValue = useMemo(() => ({
+    tasks: tasks || [],
+    addTask,
+    toggleTaskCompletion,
+    deleteTask,
+  }), [tasks]);
 
   return (
-    <TaskContext.Provider value={{ tasks, addTask, toggleTaskCompletion, deleteTask }}>
+    <TaskContext.Provider value={contextValue}>
       {children}
     </TaskContext.Provider>
   );
