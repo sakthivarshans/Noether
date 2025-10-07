@@ -5,33 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Textarea } from '@/components/ui/textarea';
 import { Upload, Zap, Clipboard, Download, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-
-const mockAnswers = `
-### Question 1: What is the primary function of the mitochondria?
-
-**Answer:** The primary function of the mitochondria is to generate most of the cell's supply of adenosine triphosphate (ATP), used as a source of chemical energy. This process is known as cellular respiration. Mitochondria are often referred to as the "powerhouses" of the cell.
-
----
-
-### Question 2: Explain the difference between osmosis and diffusion.
-
-**Answer:** 
-*   **Diffusion** is the net movement of particles from an area of higher concentration to an area of lower concentration. This process does not require a semi-permeable membrane and applies to any type of particle, including solutes and solvents.
-*   **Osmosis** is a specific type of diffusion that involves the movement of solvent molecules (usually water) across a semi-permeable membrane from a region of higher solvent concentration to a region of lower solvent concentration.
-
-In essence, osmosis is the diffusion of water across a membrane.
-
----
-
-### Question 3: Describe the three laws of motion proposed by Isaac Newton.
-
-**Answer:**
-1.  **First Law (Law of Inertia):** An object at rest stays at rest and an object in motion stays in motion with the same speed and in the same direction unless acted upon by an unbalanced force.
-2.  **Second Law (Law of Acceleration):** The acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass. (F = ma).
-3.  **Third Law (Law of Action-Reaction):** For every action, there is an equal and opposite reaction.
-
-`;
-
+import { generateAnswersForPYQ } from '@/ai/flows/generate-answers-for-pyq';
 
 export default function PYQPage() {
   const [text, setText] = useState('');
@@ -42,10 +16,20 @@ export default function PYQPage() {
   const handleGenerate = async () => {
     if (!text) return;
     setIsProcessing(true);
-    // Placeholder for Gemini API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setResult(mockAnswers);
-    setIsProcessing(false);
+    setResult(null);
+    try {
+      const response = await generateAnswersForPYQ({ pyqContent: text });
+      setResult(response.answers);
+    } catch (e) {
+      console.error(e);
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: "Could not generate answers.",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
   
   const handleCopy = () => {
@@ -68,6 +52,19 @@ export default function PYQPage() {
     URL.revokeObjectURL(url);
   };
 
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (loadEvent) => {
+        const fileContent = loadEvent.target?.result as string;
+        // This is a simplified text extraction. For PDFs, a server-side extraction would be better.
+        setText(fileContent);
+      };
+      reader.readAsText(file);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -83,8 +80,11 @@ export default function PYQPage() {
             onChange={(e) => setText(e.target.value)}
           />
           <div className="flex flex-col sm:flex-row gap-2">
-            <Button className="w-full sm:w-auto">
-              <Upload className="mr-2 h-4 w-4" /> Upload File
+            <Button asChild className="w-full sm:w-auto">
+              <label htmlFor="file-upload" className="flex items-center cursor-pointer">
+                <Upload className="mr-2 h-4 w-4" /> Upload File
+                <Input id="file-upload" type="file" className="hidden" onChange={handleFileChange} accept=".txt,.md" />
+              </label>
             </Button>
             <Button onClick={handleGenerate} disabled={!text || isProcessing} className="w-full sm:w-auto">
               {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Zap className="mr-2 h-4 w-4" />}

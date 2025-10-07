@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Input } from '@/components/ui/input';
 import { Upload, FileText, Zap, BrainCircuit, BarChart3, Loader2, RotateCw } from 'lucide-react';
 import { summarizeAndHighlightDocument, SummarizeAndHighlightDocumentOutput } from '@/ai/flows/summarize-and-highlight-document';
-import { generateFlashcardsFromDocument, GenerateFlashcardsFromDocumentOutput } from '@/ai/flows/generate-flashcards-from-document';
+import { generateFlashcardsFromDocument } from '@/ai/flows/generate-flashcards-from-document';
 import { useToast } from '@/hooks/use-toast';
 
 type Flashcard = {
@@ -40,6 +40,7 @@ export default function UploadPage() {
   const handleUpload = async () => {
     if (!fileDataUri) return;
     setIsProcessing(true);
+    setResult(null);
     setGeneratedFlashcards([]);
     try {
         const response = await summarizeAndHighlightDocument({ documentDataUri: fileDataUri });
@@ -49,7 +50,7 @@ export default function UploadPage() {
         toast({
             variant: "destructive",
             title: "Uh oh! Something went wrong.",
-            description: "Could not process document.",
+            description: "Could not process document. The model may not be able to read this file type.",
         });
     } finally {
         setIsProcessing(false);
@@ -60,7 +61,7 @@ export default function UploadPage() {
     if(!result || !result.summary) return;
     setIsGeneratingFlashcards(true);
     try {
-      const flashcardResult = await generateFlashcardsFromDocument({ documentContent: result.summary });
+      const flashcardResult = await generateFlashcardsFromDocument({ documentContent: `${result.summary}\n\n${result.highlights.join('\n')}` });
       setGeneratedFlashcards(flashcardResult.flashcards);
       setFlippedStates(new Array(flashcardResult.flashcards.length).fill(false));
       toast({
@@ -151,7 +152,7 @@ export default function UploadPage() {
             <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {generatedFlashcards.length > 0 ? (
                 generatedFlashcards.map((flashcard, index) => (
-                  <div key={index} className="perspective-[1000px] h-64" onClick={() => handleCardClick(index)}>
+                  <div key={index} className="perspective-1000 h-64" onClick={() => handleCardClick(index)}>
                       <div className={`relative w-full h-full text-center transition-transform duration-700 transform-style-3d ${flippedStates[index] ? 'rotate-y-180' : ''}`}>
                           {/* Front of card */}
                           <Card className="absolute w-full h-full backface-hidden flex flex-col justify-center items-center">
