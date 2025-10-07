@@ -9,17 +9,23 @@ import { useState, useEffect, useRef } from 'react';
 export default function FloatingPomodoroTimer() {
   const { minutes, seconds, isActive, isBreak } = usePomodoro();
   const pathname = usePathname();
-  const [position, setPosition] = useState({ x: window.innerWidth - 220, y: window.innerHeight - 120 });
+  const [position, setPosition] = useState<{ x: number, y: number } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const dragStartPos = useRef({ x: 0, y: 0 });
   const timerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Set initial position only on the client
+    setPosition({ x: window.innerWidth - 220, y: window.innerHeight - 120 });
+
     const handleResize = () => {
-      setPosition(prev => ({
-        x: Math.min(prev.x, window.innerWidth - (timerRef.current?.offsetWidth || 200)),
-        y: Math.min(prev.y, window.innerHeight - (timerRef.current?.offsetHeight || 100)),
-      }));
+      setPosition(prev => {
+        if (!prev) return null;
+        return {
+          x: Math.min(prev.x, window.innerWidth - (timerRef.current?.offsetWidth || 200)),
+          y: Math.min(prev.y, window.innerHeight - (timerRef.current?.offsetHeight || 100)),
+        }
+      });
     };
 
     window.addEventListener('resize', handleResize);
@@ -28,6 +34,7 @@ export default function FloatingPomodoroTimer() {
 
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!position) return;
     setIsDragging(true);
     dragStartPos.current = {
       x: e.clientX - position.x,
@@ -47,7 +54,7 @@ export default function FloatingPomodoroTimer() {
     setIsDragging(false);
   };
   
-  if (!isActive || pathname === '/dashboard/pomodoro') {
+  if (!isActive || pathname === '/dashboard/pomodoro' || !position) {
     return null;
   }
 
