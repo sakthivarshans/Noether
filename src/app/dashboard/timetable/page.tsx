@@ -161,7 +161,7 @@ export default function TimetablePage() {
             {timetable ? (
               timetable.length > 0 ? (
                 <div className="relative h-[840px] overflow-y-auto">
-                    <div className="grid" style={{ gridTemplateColumns: 'auto 1fr' }}>
+                    <div className="grid grid-cols-[auto_1fr]">
                         {/* Time labels */}
                         <div className="w-16 pr-2 text-right">
                             {hoursInDay.map(hour => (
@@ -185,15 +185,17 @@ export default function TimetablePage() {
                                     const height = calculateHeight(entry.startTime, entry.endTime);
                                     const isBreak = entry.subject === 'Break';
                                     
-                                    const minHeight = Math.max(height, 10); 
+                                    if (isBreak) {
+                                      return null; // Don't render a div for breaks
+                                    }
 
                                     return (
                                         <div 
                                           key={index} 
-                                          className={`absolute left-2 right-2 p-2 rounded-lg ${isBreak ? 'bg-secondary' : 'bg-primary/20 border border-primary/50'}`} 
-                                          style={{ top: `${top}px`, height: `${minHeight}px` }}
+                                          className="absolute left-2 right-2 p-2 rounded-lg bg-primary/20 border border-primary/50"
+                                          style={{ top: `${top}px`, height: `${height}px` }}
                                         >
-                                            <p className={`font-bold text-sm truncate ${isBreak ? 'text-muted-foreground' : 'text-primary'}`}>{entry.subject}</p>
+                                            <p className="font-bold text-sm truncate text-primary">{entry.subject}</p>
                                             <p className="text-xs text-muted-foreground">{entry.startTime} - {entry.endTime}</p>
                                         </div>
                                     )
