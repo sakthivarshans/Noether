@@ -13,17 +13,26 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useFirebase } from '@/firebase';
+import { signOut } from '@/firebase/auth';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { LogOut } from 'lucide-react';
+
 
 export function UserNav() {
   const router = useRouter();
-  const { auth, user } = useFirebase();
+  const { auth } = useFirebase();
+  const [user] = useAuthState(auth);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (auth) {
-      auth.signOut();
+      await signOut(auth);
+      router.push('/');
     }
-    router.push('/');
   };
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <DropdownMenu>
@@ -61,9 +70,12 @@ export function UserNav() {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout}>
+           <LogOut className="mr-2 h-4 w-4" />
           Log out
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
 }
+
+    

@@ -3,27 +3,37 @@
 import { Button } from '@/components/ui/button';
 import Mascot from '@/components/mascot';
 import { useRouter } from 'next/navigation';
-import { User } from 'lucide-react';
+import { User, LogIn, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { useFirebase } from '@/firebase';
-import { initiateAnonymousSignIn } from '@/firebase/non-blocking-login';
 import { useEffect } from 'react';
+import { signInWithGoogle, signOut } from '@/firebase/auth';
+import { useAuthState } from 'react-firebase-hooks/auth';
+
 
 export default function LandingPage() {
   const router = useRouter();
-  const { auth, user, isUserLoading } = useFirebase();
-
-  const handleSignIn = () => {
-    if (auth) {
-      initiateAnonymousSignIn(auth);
-    }
-  };
+  const { auth } = useFirebase();
+  const [user, loading] = useAuthState(auth);
 
   useEffect(() => {
     if (user) {
       router.push('/dashboard');
     }
   }, [user, router]);
+
+  const handleSignIn = async () => {
+    if (auth) {
+      await signInWithGoogle(auth);
+    }
+  };
+
+  const handleSignOut = async () => {
+    if(auth) {
+      await signOut(auth);
+    }
+  };
+
 
   return (
     <div className="flex h-screen w-full flex-col bg-gradient-to-br from-background via-secondary to-accent">
@@ -41,9 +51,17 @@ export default function LandingPage() {
                 <User className="mr-2 h-4 w-4" /> Profile
               </Link>
             </Button>
-            <Button onClick={handleSignIn} disabled={isUserLoading}>
-              {isUserLoading ? 'Loading...' : 'Sign In'}
-            </Button>
+            {user ? (
+              <Button onClick={handleSignOut} disabled={loading}>
+                <LogOut className="mr-2 h-4 w-4" />
+                {loading ? 'Loading...' : 'Sign Out'}
+              </Button>
+            ) : (
+              <Button onClick={handleSignIn} disabled={loading}>
+                 <LogIn className="mr-2 h-4 w-4" />
+                {loading ? 'Loading...' : 'Sign In'}
+              </Button>
+            )}
           </nav>
         </div>
       </header>
@@ -60,7 +78,7 @@ export default function LandingPage() {
         </p>
         <Button
           onClick={handleSignIn}
-          disabled={isUserLoading}
+          disabled={loading}
           className="mt-10 group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-purple-600 to-blue-500 px-10 py-4 font-medium text-white shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl"
           size="lg"
         >
@@ -75,3 +93,5 @@ export default function LandingPage() {
     </div>
   );
 }
+
+    

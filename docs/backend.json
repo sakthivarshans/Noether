@@ -310,8 +310,7 @@
   },
   "auth": {
     "providers": [
-      "password",
-      "anonymous"
+      "google.com"
     ]
   },
   "firestore": {
@@ -480,3 +479,4 @@
     "reasoning": "The Firestore structure is designed to provide a secure, scalable, and easily manageable data storage solution for the \"Noether\" application. The structure emphasizes authorization independence through denormalization and structural segregation, ensuring clear security rules and efficient data access. All data for individual users are stored under their respective user ID to maintain privacy and data ownership. The structure facilitates straightforward security rules, enabling secure 'list' operations and maintaining the integrity of ownership, timestamps, and denormalized data.\n\nAuthorization Independence is achieved primarily via path-based ownership.  For example, all documents, flashcards, PYQ answers, timetables, to-do tasks, voice notes, and game scores are stored under `/users/{userId}`, thus eliminating the need for complex `get()` calls in security rules. The structure implicitly enforces ownership. The structure also supports QAPs by segregating user data and using path-based ownership, guaranteeing that list operations are secure and only return data accessible to the requesting user.\n"
   }
 }
+    
