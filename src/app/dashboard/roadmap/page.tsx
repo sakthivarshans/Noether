@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Sitemap, Loader2, ListOrdered, CheckCircle } from 'lucide-react';
+import { Waypoints, Loader2, ListOrdered, CheckCircle } from 'lucide-react';
 import { generateLearningRoadmap, GenerateLearningRoadmapOutput } from '@/ai/flows/generate-learning-roadmap';
 import { useToast } from '@/hooks/use-toast';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -50,7 +50,7 @@ export default function RoadmapPage() {
               onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
             />
             <Button onClick={handleGenerate} disabled={isGenerating || !topic}>
-              {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sitemap className="h-4 w-4" />}
+              {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Waypoints className="h-4 w-4" />}
               <span className="hidden sm:inline ml-2">Generate Roadmap</span>
             </Button>
           </div>
