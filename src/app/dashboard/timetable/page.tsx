@@ -14,18 +14,37 @@ interface TimetableEntry {
 }
 
 export default function TimetablePage() {
-  const [subjects, setSubjects] = useState(4);
+  const [numberOfSubjects, setNumberOfSubjects] = useState(4);
+  const [subjectNames, setSubjectNames] = useState<string[]>(Array(4).fill(''));
   const [hours, setHours] = useState(5);
   const [timetable, setTimetable] = useState<TimetableEntry[] | null>(null);
 
+  const handleNumberOfSubjectsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const num = Number(e.target.value);
+    if (num > 0) {
+      setNumberOfSubjects(num);
+      setSubjectNames(Array(num).fill(''));
+    } else {
+        setNumberOfSubjects(0);
+        setSubjectNames([]);
+    }
+  };
+  
+  const handleSubjectNameChange = (index: number, name: string) => {
+    const newSubjectNames = [...subjectNames];
+    newSubjectNames[index] = name;
+    setSubjectNames(newSubjectNames);
+  };
+
+
   const generateTimetable = () => {
-    if (subjects <= 0 || hours <= 0) return;
+    if (numberOfSubjects <= 0 || hours <= 0) return;
 
     const totalMinutes = hours * 60;
     const breakMinutes = 5;
-    const totalBreaks = subjects - 1;
+    const totalBreaks = numberOfSubjects - 1 > 0 ? numberOfSubjects - 1 : 0;
     const studyMinutes = totalMinutes - (totalBreaks * breakMinutes);
-    const minutesPerSubject = Math.floor(studyMinutes / subjects);
+    const minutesPerSubject = Math.floor(studyMinutes / numberOfSubjects);
 
     if (minutesPerSubject <= 0) {
         // Handle case where hours are not enough for subjects with breaks
@@ -37,17 +56,19 @@ export default function TimetablePage() {
     let currentTime = new Date();
     currentTime.setHours(9, 0, 0, 0); // Start at 9:00 AM
 
-    for (let i = 0; i < subjects; i++) {
+    for (let i = 0; i < numberOfSubjects; i++) {
       const startTime = new Date(currentTime.getTime());
       const endTime = new Date(startTime.getTime() + minutesPerSubject * 60000);
 
       newTimetable.push({
-        subject: `Subject ${i + 1}`,
+        subject: subjectNames[i] || `Subject ${i + 1}`,
         startTime: startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         endTime: endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       });
-
-      currentTime = new Date(endTime.getTime() + breakMinutes * 60000);
+      
+      if (i < numberOfSubjects - 1) {
+         currentTime = new Date(endTime.getTime() + breakMinutes * 60000);
+      }
     }
     setTimetable(newTimetable);
   };
@@ -66,11 +87,25 @@ export default function TimetablePage() {
               <Input
                 id="subjects"
                 type="number"
-                value={subjects}
-                onChange={(e) => setSubjects(Number(e.target.value))}
+                value={numberOfSubjects}
+                onChange={handleNumberOfSubjectsChange}
                 min="1"
               />
             </div>
+             {numberOfSubjects > 0 && (
+              <div className="space-y-3 pt-2">
+                 <Label>Subject Names</Label>
+                 {Array.from({ length: numberOfSubjects }).map((_, index) => (
+                    <Input
+                        key={index}
+                        type="text"
+                        placeholder={`Subject ${index + 1} Name`}
+                        value={subjectNames[index]}
+                        onChange={(e) => handleSubjectNameChange(index, e.target.value)}
+                    />
+                 ))}
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="hours">Total Study Hours</Label>
               <Input
@@ -104,24 +139,30 @@ export default function TimetablePage() {
           </CardHeader>
           <CardContent>
             {timetable ? (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Subject</TableHead>
-                    <TableHead>Start Time</TableHead>
-                    <TableHead>End Time</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {timetable.map((entry, index) => (
-                    <TableRow key={index}>
-                      <TableCell className="font-medium">{entry.subject}</TableCell>
-                      <TableCell>{entry.startTime}</TableCell>
-                      <TableCell>{entry.endTime}</TableCell>
+              timetable.length > 0 ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Subject</TableHead>
+                      <TableHead>Start Time</TableHead>
+                      <TableHead>End Time</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {timetable.map((entry, index) => (
+                      <TableRow key={index}>
+                        <TableCell className="font-medium">{entry.subject}</TableCell>
+                        <TableCell>{entry.startTime}</TableCell>
+                        <TableCell>{entry.endTime}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              ) : (
+                <div className="text-center text-destructive-foreground bg-destructive/80 p-4 rounded-md">
+                  <p>Not enough time to schedule all subjects with breaks. Please increase the total study hours.</p>
+                </div>
+              )
             ) : (
               <div className="text-center text-muted-foreground py-12">
                 <p>Your timetable will appear here.</p>
