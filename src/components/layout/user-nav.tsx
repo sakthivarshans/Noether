@@ -1,3 +1,4 @@
+
 'use client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -53,16 +54,16 @@ export function UserNav() {
               alt="User avatar"
               data-ai-hint="user avatar"
             />
-            <AvatarFallback>{user?.email?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
+            <AvatarFallback>{user.isAnonymous ? 'A' : (user?.email?.[0]?.toUpperCase() || 'U')}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user?.displayName || 'Anonymous User'}</p>
+            <p className="text-sm font-medium leading-none">{user.isAnonymous ? 'Anonymous User' : (user?.displayName || 'User')}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              {user?.email || (user ? user.uid : 'Not signed in')}
+              {user.isAnonymous ? user.uid : (user?.email || 'Not signed in')}
             </p>
           </div>
         </DropdownMenuLabel>

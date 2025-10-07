@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -7,7 +8,7 @@ import { User, LogIn, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { useFirebase } from '@/firebase';
 import { useEffect, useState } from 'react';
-import { signInWithGoogle, signOut, handleRedirectResult } from '@/firebase/auth';
+import { signInAnonymously, signOut } from '@/firebase/auth';
 import { onAuthStateChanged } from 'firebase/auth';
 
 
@@ -20,35 +21,23 @@ export default function LandingPage() {
   useEffect(() => {
     if (!auth) return;
 
-    // Handle the redirect result from Google Sign-In
-    handleRedirectResult(auth)
-      .then((resultUser) => {
-        if (resultUser) {
-          // If a user is returned from the redirect, update state and redirect
-          setUser(resultUser);
-          router.push('/dashboard');
-        } else {
-          // If no user from redirect, set up the normal auth state listener
-          const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-            setUser(currentUser);
-            setIsLoading(false);
-            if (currentUser) {
-              router.push('/dashboard');
-            }
-          });
-          return () => unsubscribe();
-        }
-      })
-      .catch(() => {
-        setIsLoading(false);
-      });
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setIsLoading(false);
+      if (currentUser) {
+        router.push('/dashboard');
+      }
+    });
+    return () => unsubscribe();
       
   }, [auth, router]);
 
 
   const handleSignIn = async () => {
     if (auth) {
-      await signInWithGoogle(auth);
+      setIsLoading(true);
+      await signInAnonymously(auth);
+      // The onAuthStateChanged listener will handle the redirect
     }
   };
 
@@ -109,7 +98,7 @@ export default function LandingPage() {
           size="lg"
         >
           <span className="absolute inset-0 h-full w-full bg-white opacity-10 transition-opacity duration-300 group-hover:opacity-20"></span>
-          Sign In & Start Studying
+          Start Studying
         </Button>
       </main>
 
