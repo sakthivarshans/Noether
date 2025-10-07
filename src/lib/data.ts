@@ -28,12 +28,12 @@ export const quotes: { text: string; author: string }[] = [
 ];
 
 export const musicTracks = [
-    { id: 1, title: "Peaceful Morning", artist: "Instrumental", duration: "3:45", url: "/music/track1.mp3" },
-    { id: 2, title: "Lofi Study Beats", artist: "Chillhop", duration: "2:50", url: "/music/track2.mp3" },
-    { id: 3, title: "Deep Focus", artist: "Ambient", duration: "4:10", url: "/music/track3.mp3" },
-    { id: 4, title: "Quiet Cafe", artist: "Jazz", duration: "3:20", url: "/music/track4.mp3" },
-    { id: 5, title: "Rainy Day", artist: "Nature Sounds", duration: "5:00", url: "/music/track5.mp3" },
-    { id: 6, title: "Ocean Waves", artist: "Nature Sounds", duration: "4:30", url: "/music/track6.mp3" },
+    { id: 1, title: "Peaceful Morning", artist: "Instrumental", duration: "3:45", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+    { id: 2, title: "Lofi Study Beats", artist: "Chillhop", duration: "2:50", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+    { id: 3, title: "Deep Focus", artist: "Ambient", duration: "4:10", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
+    { id: 4, title: "Quiet Cafe", artist: "Jazz", duration: "3:20", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
+    { id: 5, title: "Rainy Day", artist: "Nature Sounds", duration: "5:00", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
+    { id: 6, title: "Ocean Waves", artist: "Nature Sounds", duration: "4:30", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3" },
 ];
 
 export const games = [

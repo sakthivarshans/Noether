@@ -1,32 +1,66 @@
+
 'use client';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { musicTracks } from '@/lib/data';
-import { Play, Pause, SkipForward, Music, Volume2 } from 'lucide-react';
+import { Play, Pause, SkipForward, Music, Volume2, VolumeX } from 'lucide-react';
 import Image from 'next/image';
+import { Slider } from '@/components/ui/slider';
+
+type MusicTrack = typeof musicTracks[0];
 
 export default function MusicPage() {
-  const [currentTrack, setCurrentTrack] = useState(musicTracks[0]);
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [volume, setVolume] = useState(0.5);
+  const [isMuted, setIsMuted] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  
+  const currentTrack = musicTracks[currentTrackIndex];
 
-  // In a real app, you would use an <audio> element and manage its state.
-  // This is a UI-only mock.
+  useEffect(() => {
+    if (audioRef.current) {
+        audioRef.current.volume = isMuted ? 0 : volume;
+    }
+  }, [volume, isMuted]);
+
+  useEffect(() => {
+    if (audioRef.current) {
+        if (isPlaying) {
+            audioRef.current.play().catch(error => console.error("Error playing audio:", error));
+        } else {
+            audioRef.current.pause();
+        }
+    }
+  }, [isPlaying, currentTrackIndex]);
 
   const handlePlayPause = () => {
     setIsPlaying(!isPlaying);
   };
 
   const handleNext = () => {
-    const currentIndex = musicTracks.findIndex(t => t.id === currentTrack.id);
-    const nextIndex = (currentIndex + 1) % musicTracks.length;
-    setCurrentTrack(musicTracks[nextIndex]);
+    setCurrentTrackIndex((prevIndex) => (prevIndex + 1) % musicTracks.length);
     setIsPlaying(true);
   };
   
-  const handleSelectTrack = (track: typeof musicTracks[0]) => {
-    setCurrentTrack(track);
+  const handleSelectTrack = (track: MusicTrack) => {
+    const trackIndex = musicTracks.findIndex(t => t.id === track.id);
+    setCurrentTrackIndex(trackIndex);
     setIsPlaying(true);
+  }
+
+  const handleVolumeChange = (value: number[]) => {
+    setVolume(value[0]);
+    if (isMuted) setIsMuted(false);
+  }
+
+  const handleMuteToggle = () => {
+      setIsMuted(!isMuted);
+  }
+
+  const handleTrackEnded = () => {
+      handleNext();
   }
 
   return (
@@ -46,8 +80,9 @@ export default function MusicPage() {
               <p className="text-muted-foreground">{currentTrack.artist}</p>
             </div>
             <div className="flex items-center justify-center gap-4">
-              <Button size="icon" variant="ghost" className="rounded-full h-16 w-16">
-                <Volume2 className="h-6 w-6" />
+               <audio ref={audioRef} src={currentTrack.url} onEnded={handleTrackEnded} />
+              <Button size="icon" variant="ghost" className="rounded-full h-16 w-16" onClick={handleMuteToggle}>
+                {isMuted || volume === 0 ? <VolumeX className="h-6 w-6" /> : <Volume2 className="h-6 w-6" />}
               </Button>
               <Button size="icon" variant="ghost" className="rounded-full h-20 w-20" onClick={handlePlayPause}>
                 {isPlaying ? <Pause className="h-8 w-8" /> : <Play className="h-8 w-8" />}
@@ -55,6 +90,16 @@ export default function MusicPage() {
               <Button size="icon" variant="ghost" className="rounded-full h-16 w-16" onClick={handleNext}>
                 <SkipForward className="h-6 w-6" />
               </Button>
+            </div>
+            <div className="px-10">
+              <Slider
+                value={[isMuted ? 0 : volume]}
+                max={1}
+                min={0}
+                step={0.05}
+                onValueChange={handleVolumeChange}
+                aria-label="Volume"
+              />
             </div>
           </CardContent>
         </Card>
