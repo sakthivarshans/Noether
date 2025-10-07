@@ -1,14 +1,28 @@
+'use client';
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { games } from '@/lib/data';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Award } from 'lucide-react';
 import Link from 'next/link';
+import { usePoints } from '@/context/PointsContext';
 
 export default function GamesPage() {
+  const { points } = usePoints();
+
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="font-headline text-3xl font-bold">Brain Games</h1>
-        <p className="text-muted-foreground">Take a break and sharpen your mind with these fun games.</p>
+      <div className="mb-6 flex justify-between items-center">
+        <div>
+            <h1 className="font-headline text-3xl font-bold">Brain Games</h1>
+            <p className="text-muted-foreground">Take a break and sharpen your mind with these fun games.</p>
+        </div>
+        <Card className="p-3">
+            <div className="flex items-center gap-2">
+                <Award className="h-6 w-6 text-primary"/>
+                <span className="text-2xl font-bold">{points}</span>
+                <span className="text-muted-foreground">Points</span>
+            </div>
+        </Card>
       </div>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {games.map(game => (
@@ -20,6 +34,7 @@ export default function GamesPage() {
                   <CardDescription>{game.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
+                  {/* High score could be implemented with Firebase */}
                   <p className="text-sm text-muted-foreground">High Score: 0</p>
                 </CardContent>
               </div>
