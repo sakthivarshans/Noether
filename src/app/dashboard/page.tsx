@@ -48,16 +48,21 @@ function QuoteRotator() {
     const [quoteIndex, setQuoteIndex] = React.useState(0);
 
     React.useEffect(() => {
+        // Math.random() is not safe for server components, but this is a client component
+        setQuoteIndex(Math.floor(Math.random() * quotes.length));
+
         const interval = setInterval(() => {
             setQuoteIndex((prevIndex) => (prevIndex + 1) % quotes.length);
         }, 10000);
         return () => clearInterval(interval);
     }, []);
 
+    const quote = quotes[quoteIndex];
+
     return (
         <div className="text-center text-sm italic text-muted-foreground transition-opacity duration-1000">
-            <p>&ldquo;{quotes[quoteIndex].text}&rdquo;</p>
-            <p className="font-semibold not-italic mt-1">&ndash; {quotes[quoteIndex].author}</p>
+            <p>&ldquo;{quote.text}&rdquo;</p>
+            <p className="font-semibold not-italic mt-1">&ndash; {quote.author}</p>
         </div>
     );
 }
@@ -153,8 +158,8 @@ export default function Dashboard() {
       <UpcomingTasks />
 
       <div className="text-center my-8">
-        <h2 className="text-2xl font-bold font-headline mb-2 text-foreground/80">Your Study Tools</h2>
         <QuoteRotator />
+        <h2 className="text-2xl font-bold font-headline mt-4 mb-2 text-foreground/80">Your Study Tools</h2>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
