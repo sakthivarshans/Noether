@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -42,15 +43,18 @@ export default function TimetablePage() {
 
     const totalMinutes = hours * 60;
     const breakMinutes = 5;
-    const totalBreaks = numberOfSubjects - 1 > 0 ? numberOfSubjects - 1 : 0;
+    const totalBreaks = numberOfSubjects > 1 ? numberOfSubjects - 1 : 0;
     const studyMinutes = totalMinutes - (totalBreaks * breakMinutes);
-    const minutesPerSubject = Math.round(studyMinutes / numberOfSubjects);
+    const minutesPerSubject = studyMinutes / numberOfSubjects;
 
     if (minutesPerSubject <= 0) {
-        // Handle case where hours are not enough for subjects with breaks
         setTimetable([]);
         return;
     }
+    
+    // Round duration to nearest 5 minutes
+    const roundedMinutesPerSubject = Math.max(5, Math.round(minutesPerSubject / 5) * 5);
+
 
     const newTimetable: TimetableEntry[] = [];
     let currentTime = new Date();
@@ -58,7 +62,8 @@ export default function TimetablePage() {
 
     for (let i = 0; i < numberOfSubjects; i++) {
       const startTime = new Date(currentTime.getTime());
-      const endTime = new Date(startTime.getTime() + minutesPerSubject * 60000);
+      
+      let endTime = new Date(startTime.getTime() + roundedMinutesPerSubject * 60000);
 
       newTimetable.push({
         subject: subjectNames[i] || `Subject ${i + 1}`,
@@ -66,6 +71,7 @@ export default function TimetablePage() {
         endTime: endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       });
       
+      // Add break if it's not the last subject
       if (i < numberOfSubjects - 1) {
          currentTime = new Date(endTime.getTime() + breakMinutes * 60000);
       }
