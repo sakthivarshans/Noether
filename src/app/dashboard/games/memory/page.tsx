@@ -122,7 +122,7 @@ export default function MemoryGamePage() {
                                             </div>
                                             {/* Front */}
                                             <div className="absolute w-full h-full backface-hidden rotate-y-180 flex items-center justify-center rounded-lg bg-card border-2 border-primary">
-                                                <Icon className="w-1/2 h-2/1 text-primary" />
+                                                <Icon className="w-1/2 h-1/2 text-primary" />
                                             </div>
                                         </div>
                                     </div>
