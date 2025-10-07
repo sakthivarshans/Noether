@@ -83,11 +83,11 @@ function UpcomingTasks() {
               delay: 3000,
             }),
         ]}
-        className="w-full max-w-lg mx-auto"
+        className="w-full max-w-xs mx-auto"
       >
         <CarouselContent>
           {upcomingTasks.map((task) => (
-            <CarouselItem key={task.id} className="md:basis-1/2 lg:basis-1/3">
+            <CarouselItem key={task.id}>
               <div className="p-1">
                 <Card className="bg-gradient-to-r from-background to-secondary/50">
                   <CardHeader>
@@ -118,14 +118,16 @@ export default function Dashboard() {
   return (
     <>
       <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-6 rounded-lg bg-card border">
-        <div className="space-y-2">
+        <div className="space-y-4 text-center md:text-left flex-1">
           <h1 className="text-3xl font-bold font-headline tracking-tighter">Meet Your Personal AI Study Assistant</h1>
-          <p className="text-muted-foreground max-w-lg">Master any subject with an AI tutor that understands your pace and your goals. Let&apos;s get started.</p>
-          <Button asChild className="mt-4">
-            <Link href="/dashboard/pomodoro">
-              <Timer className="mr-2 h-4 w-4"/> Go Study
-            </Link>
-          </Button>
+          <p className="text-muted-foreground max-w-lg mx-auto md:mx-0">Master any subject with an AI tutor that understands your pace and your goals. Let&apos;s get started.</p>
+          <div className="flex justify-center md:justify-start">
+            <Button asChild>
+              <Link href="/dashboard/pomodoro">
+                <Timer className="mr-2 h-4 w-4"/> Start Studying
+              </Link>
+            </Button>
+          </div>
         </div>
         <div className="flex items-center gap-4">
           <StreakTracker />
