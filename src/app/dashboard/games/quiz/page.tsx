@@ -4,13 +4,15 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Check, X, Award, Timer } from 'lucide-react';
-import { usePoints } from '@/context/PointsContext';
+import { useGameScores } from '@/context/GameScoreContext';
 import { Progress } from '@/components/ui/progress';
 
 const TIME_LIMIT = 10; // 10 seconds per question
 
 const generateProblem = () => {
   const operators = ['+', '-', '×'];
+  // Math.random() is not safe to use on server, but this is a client component
+  // so it's fine.
   const operator = operators[Math.floor(Math.random() * operators.length)];
   let num1, num2, answer;
 
@@ -43,7 +45,7 @@ export default function MathQuizPage() {
   const [userAnswer, setUserAnswer] = useState('');
   const [feedback, setFeedback] = useState<'correct' | 'incorrect' | null>(null);
   const [questionsAnswered, setQuestionsAnswered] = useState(0);
-  const { addPoints } = usePoints();
+  const { addScore } = useGameScores();
   const inputRef = useRef<HTMLInputElement>(null);
   const [timeLeft, setTimeLeft] = useState(TIME_LIMIT);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -78,6 +80,7 @@ export default function MathQuizPage() {
       setFeedback('incorrect');
       setTimeout(nextQuestion, 1500);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeLeft]);
 
   useEffect(() => {
@@ -92,11 +95,12 @@ export default function MathQuizPage() {
     if (timerRef.current) clearInterval(timerRef.current);
     
     const points = timeLeft;
-    setPointsAwarded(points);
+    
 
     if (userAnswer === problem.answer) {
       setFeedback('correct');
-      addPoints(points);
+      setPointsAwarded(points);
+      addScore('quiz', points);
     } else {
       setFeedback('incorrect');
     }

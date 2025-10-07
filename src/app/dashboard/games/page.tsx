@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { games } from '@/lib/data';
 import { ArrowRight, Award, Brain, Atom, Dna, FlaskConical, Microscope, Rocket, TestTube, Lightbulb, Zap } from 'lucide-react';
 import Link from 'next/link';
-import { usePoints } from '@/context/PointsContext';
+import { useGameScores } from '@/context/GameScoreContext';
 
 const gameIcons: { [key: string]: React.ElementType } = {
   sudoku: Brain,
@@ -14,7 +14,7 @@ const gameIcons: { [key: string]: React.ElementType } = {
 };
 
 export default function GamesPage() {
-  const { points } = usePoints();
+  const { totalScore, getHighScore } = useGameScores();
 
   return (
     <div>
@@ -26,14 +26,15 @@ export default function GamesPage() {
         <Card className="p-3">
             <div className="flex items-center gap-2">
                 <Award className="h-6 w-6 text-primary"/>
-                <span className="text-2xl font-bold">{points}</span>
-                <span className="text-muted-foreground">Points</span>
+                <span className="text-2xl font-bold">{totalScore}</span>
+                <span className="text-muted-foreground">Total Points (This Week)</span>
             </div>
         </Card>
       </div>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {games.map(game => {
           const Icon = gameIcons[game.id] || Brain;
+          const highScore = getHighScore(game.id);
           return (
             <Link href={`/dashboard/games/${game.id}`} key={game.id}>
               <Card className="group h-full flex flex-col justify-between hover:bg-accent hover:border-primary/50 transition-all transform hover:-translate-y-1">
@@ -48,8 +49,7 @@ export default function GamesPage() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    {/* High score could be implemented with Firebase */}
-                    <p className="text-sm text-muted-foreground">High Score: 0</p>
+                    <p className="text-sm text-muted-foreground">High Score (This Week): <span className="font-bold text-foreground">{highScore}</span></p>
                   </CardContent>
                 </div>
                 <div className="p-6 pt-0">

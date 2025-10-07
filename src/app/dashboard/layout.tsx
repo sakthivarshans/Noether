@@ -1,10 +1,10 @@
 import { Header } from '@/components/layout/header';
 import { Sidebar } from '@/components/layout/sidebar';
-import { PointsProvider } from '@/context/PointsContext';
 import { TaskProvider } from '@/context/TaskContext';
 import { PomodoroProvider } from '@/context/PomodoroContext';
 import FloatingPomodoroTimer from '@/components/dashboard/FloatingPomodoroTimer';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
+import { GameScoreProvider } from '@/context/GameScoreContext';
 
 export default function DashboardLayout({
   children,
@@ -13,7 +13,7 @@ export default function DashboardLayout({
 }) {
   return (
     <FirebaseClientProvider>
-      <PointsProvider>
+      <GameScoreProvider>
         <TaskProvider>
           <PomodoroProvider>
             <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
@@ -28,7 +28,7 @@ export default function DashboardLayout({
             <FloatingPomodoroTimer />
           </PomodoroProvider>
         </TaskProvider>
-      </PointsProvider>
+      </GameScoreProvider>
     </FirebaseClientProvider>
   );
 }

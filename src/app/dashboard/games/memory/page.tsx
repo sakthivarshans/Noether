@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { usePoints } from '@/context/PointsContext';
+import { useGameScores } from '@/context/GameScoreContext';
 import { Brain, Atom, Dna, FlaskConical, Microscope, Rocket, TestTube, Lightbulb, CheckCircle2, Award, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -19,6 +19,8 @@ const ICONS = [
 ];
 
 const shuffleArray = (array: any[]) => {
+    // Math.random() is not safe to use on server, but this is a client component
+    // so it's fine.
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
@@ -37,7 +39,7 @@ export default function MemoryGamePage() {
     const [flipped, setFlipped] = useState<number[]>([]);
     const [matched, setMatched] = useState<string[]>([]);
     const [moves, setMoves] = useState(0);
-    const { addPoints } = usePoints();
+    const { addScore } = useGameScores();
     const [isChecking, setIsChecking] = useState(false);
 
     const isGameOver = matched.length === ICONS.length;
@@ -51,7 +53,6 @@ export default function MemoryGamePage() {
 
             if (firstCard.name === secondCard.name) {
                 setMatched(prev => [...prev, firstCard.name]);
-                addPoints(20);
                 setFlipped([]);
                 setIsChecking(false);
             } else {
@@ -61,7 +62,14 @@ export default function MemoryGamePage() {
                 }, 1000);
             }
         }
-    }, [flipped, cards, addPoints]);
+    }, [flipped, cards]);
+
+    useEffect(() => {
+        if (isGameOver) {
+            const score = Math.max(0, 100 - (moves - ICONS.length * 2) * 5); // Example scoring logic
+            addScore('memory', score);
+        }
+    }, [isGameOver, moves, addScore]);
 
 
     const handleCardClick = (index: number) => {
@@ -71,10 +79,7 @@ export default function MemoryGamePage() {
 
         const newFlipped = [...flipped, index];
         setFlipped(newFlipped);
-
-        if (newFlipped.length === 1) { // First card of a potential pair
-             setMoves(moves + 1);
-        }
+        setMoves(m => m + 1);
     };
 
     const resetGame = () => {

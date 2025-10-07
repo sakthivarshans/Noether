@@ -13,6 +13,7 @@ import {
   Upload,
   Bell,
   Waypoints,
+  Award,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -26,6 +27,7 @@ import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow } from 'date-fns';
 import Autoplay from "embla-carousel-autoplay";
 import { StreakTracker } from '@/components/dashboard/StreakTracker';
+import { useGameScores } from '@/context/GameScoreContext';
 
 const tools = [
   { href: '/dashboard/upload', label: 'Upload Document', icon: Upload, description: 'Upload PPT/PDF for AI summaries and flashcards' },
@@ -117,6 +119,7 @@ function UpcomingTasks() {
 
 
 export default function Dashboard() {
+  const { totalScore } = useGameScores();
   return (
     <>
       <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-6 rounded-lg bg-card border">
@@ -132,6 +135,13 @@ export default function Dashboard() {
           </div>
         </div>
         <div className="flex items-center gap-4">
+           <Card className="p-3">
+              <div className="flex items-center gap-2">
+                  <Award className="h-6 w-6 text-primary"/>
+                  <span className="text-2xl font-bold">{totalScore}</span>
+                  <span className="text-muted-foreground">Points</span>
+              </div>
+          </Card>
           <StreakTracker />
           <div className="w-40 h-40 md:w-48 md:h-48">
             <Mascot />

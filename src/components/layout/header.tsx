@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { UserNav } from './user-nav';
 import Mascot from '../mascot';
-import { usePoints } from '@/context/PointsContext';
+import { useGameScores } from '@/context/GameScoreContext';
 
 const navItems = [
     { href: '/dashboard', label: 'Dashboard' },
@@ -28,7 +28,7 @@ const navItems = [
   ];
 
 export function Header() {
-  const { points } = usePoints();
+  const { totalScore } = useGameScores();
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-card px-4 lg:h-[60px] lg:px-6">
       <Sheet>
@@ -65,7 +65,7 @@ export function Header() {
       </div>
       <div className="flex items-center gap-2">
         <Award className="h-5 w-5 text-primary" />
-        <span className="font-bold text-lg">{points}</span>
+        <span className="font-bold text-lg">{totalScore}</span>
       </div>
       <UserNav />
     </header>

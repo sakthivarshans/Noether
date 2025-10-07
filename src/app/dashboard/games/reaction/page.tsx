@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { usePoints } from '@/context/PointsContext';
+import { useGameScores } from '@/context/GameScoreContext';
 import { Zap, Pointer, MousePointerClick, RefreshCw, Award } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -14,12 +14,14 @@ export default function ReactionTimeGamePage() {
   const [points, setPoints] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef(0);
-  const { addPoints } = usePoints();
+  const { addScore } = useGameScores();
 
   const startGame = () => {
     setGameState('waiting');
     setReactionTime(0);
     setPoints(0);
+    // Math.random() is not safe to use on server, but this is a client component
+    // so it's fine.
     const randomDelay = Math.random() * 3000 + 1000; // 1-4 seconds
     timerRef.current = setTimeout(() => {
       setGameState('ready');
@@ -38,7 +40,7 @@ export default function ReactionTimeGamePage() {
 
       setReactionTime(time);
       setPoints(calculatedPoints);
-      addPoints(calculatedPoints);
+      addScore('reaction', calculatedPoints);
       setGameState('clicked');
     }
   };
