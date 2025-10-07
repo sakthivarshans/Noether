@@ -12,12 +12,16 @@ import {
 } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useFirebase } from '@/firebase';
 
 export function UserNav() {
   const router = useRouter();
+  const { auth, user } = useFirebase();
 
   const handleLogout = () => {
-    // Placeholder for Firebase logout
+    if (auth) {
+      auth.signOut();
+    }
     router.push('/');
   };
 
@@ -27,20 +31,20 @@ export function UserNav() {
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-9 w-9">
             <AvatarImage
-              src="https://picsum.photos/seed/avatar/100/100"
-              alt="@shadcn"
+              src={user?.photoURL || "https://picsum.photos/seed/avatar/100/100"}
+              alt="User avatar"
               data-ai-hint="user avatar"
             />
-            <AvatarFallback>U</AvatarFallback>
+            <AvatarFallback>{user?.email?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">Student</p>
+            <p className="text-sm font-medium leading-none">{user?.displayName || 'Anonymous User'}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              student@example.com
+              {user?.email || (user ? user.uid : 'Not signed in')}
             </p>
           </div>
         </DropdownMenuLabel>
@@ -51,11 +55,9 @@ export function UserNav() {
               Profile
             </DropdownMenuItem>
           </Link>
-          <Link href="/dashboard/settings">
-            <DropdownMenuItem>
+          <DropdownMenuItem>
               Settings
-            </DropdownMenuItem>
-          </Link>
+          </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout}>

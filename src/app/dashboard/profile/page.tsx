@@ -7,9 +7,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Upload, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useUser } from '@/firebase';
 
 export default function ProfilePage() {
     const { toast } = useToast();
+    const { user } = useUser();
 
     const handleSave = () => {
         // Placeholder for saving data to Firebase
@@ -29,8 +31,8 @@ export default function ProfilePage() {
         <CardContent className="space-y-6">
           <div className="flex items-center gap-6">
             <Avatar className="h-24 w-24">
-              <AvatarImage src="https://picsum.photos/seed/avatar/100/100" alt="User avatar" data-ai-hint="user avatar" />
-              <AvatarFallback>U</AvatarFallback>
+              <AvatarImage src={user?.photoURL || "https://picsum.photos/seed/avatar/100/100"} alt="User avatar" data-ai-hint="user avatar" />
+              <AvatarFallback>{user?.email?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
             </Avatar>
             <Button variant="outline">
               <Upload className="mr-2 h-4 w-4" /> Upload new picture
@@ -40,35 +42,25 @@ export default function ProfilePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="name">Name</Label>
-              <Input id="name" defaultValue="AI Student" />
+              <Input id="name" defaultValue={user?.displayName || "Anonymous User"} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" defaultValue="student@example.com" disabled />
+              <Input id="email" type="email" defaultValue={user?.email || "No email provided"} disabled />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="uid">User ID</Label>
+              <Input id="uid" type="text" defaultValue={user?.uid} disabled />
             </div>
             <div className="space-y-2">
               <Label htmlFor="college">College/University</Label>
               <Input id="college" placeholder="e.g., University of Technology" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="degree">Degree</Label>
-              <Input id="degree" placeholder="e.g., B.Sc. in Computer Science" />
             </div>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="summary">Summary / Bio</Label>
             <Textarea id="summary" placeholder="Tell us a little about yourself..." />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="projects">Projects</Label>
-            <Textarea id="projects" placeholder="List your projects, separated by commas or new lines." />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="skills">Skills, Hobbies & Goals</Label>
-            <Textarea id="skills" placeholder="What are you good at? What do you love to do?" />
           </div>
 
           <div className="flex justify-end">

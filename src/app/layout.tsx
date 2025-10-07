@@ -1,16 +1,17 @@
 import type { Metadata } from 'next';
-import { Inter, Pacifico } from 'next/font/google';
+import { Inter, Lexend, Pacifico } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
+import { FirebaseClientProvider } from '@/firebase';
 
-const fontBody = Inter({
+const fontBody = Lexend({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-body',
 });
 
-const fontHeadline = Inter({
+const fontHeadline = Lexend({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-headline',
@@ -43,7 +44,9 @@ export default function RootLayout({
           fontBrand.variable
         )}
       >
-        {children}
+        <FirebaseClientProvider>
+          {children}
+        </FirebaseClientProvider>
         <Toaster />
       </body>
     </html>
