@@ -8,43 +8,78 @@ export default function Mascot({ className }: { className?: string }) {
       <svg
         viewBox="0 0 200 200"
         xmlns="http://www.w3.org/2000/svg"
-        className="animate-[float_3s_ease-in-out_infinite]"
+        className="animate-[float_4s_ease-in-out_infinite]"
       >
-        {/* Robot Head Shape */}
+        <defs>
+          <radialGradient id="energeticGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+            <stop offset="0%" style={{stopColor: 'hsl(var(--accent))', stopOpacity:1}} />
+            <stop offset="100%" style={{stopColor: 'hsl(var(--primary))', stopOpacity:1}} />
+          </radialGradient>
+        </defs>
+
+        {/* Main energetic shape */}
         <path
-          fill="hsl(var(--primary))"
-          d="M 50,50 C 40,50 40,50 40,60 V 140 C 40,150 40,150 50,150 H 150 C 160,150 160,150 160,140 V 60 C 160,50 160,50 150,50 Z"
-          transform="translate(0, -10)"
-        />
+          fill="url(#energeticGradient)"
+          d="M 100,20 C 140,20 180,60 180,100 C 180,140 140,180 100,180 C 60,180 20,140 20,100 C 20,60 60,20 100,20 Z"
+          className="path"
+        ></path>
 
-        {/* Eyes */}
-        <circle cx="80" cy="90" r="12" fill="white" />
-        <circle cx="120" cy="90" r="12" fill="white" />
-        <circle cx="80" cy="90" r="6" fill="hsl(var(--foreground))" className="animate-[blink_4s_infinite_2s]" />
-        <circle cx="120" cy="90" r="6" fill="hsl(var(--foreground))" className="animate-[blink_4s_infinite_2.2s]" />
+        {/* Inner glow / core */}
+        <circle cx="100" cy="100" r="30" fill="white" opacity="0.8" className="pulse"/>
 
-        {/* Mouth */}
-        <path
-          d="M 90 125 Q 100 135 110 125"
-          stroke="white"
-          strokeWidth="4"
-          fill="none"
-          strokeLinecap="round"
-        />
-
-        {/* Antennas */}
-        <line x1="70" y1="40" x2="60" y2="20" stroke="hsl(var(--accent-foreground))" strokeWidth="4" />
-        <circle cx="58" cy="18" r="6" fill="hsl(var(--accent))" />
-
-        <line x1="130" y1="40" x2="140" y2="20" stroke="hsl(var(--accent-foreground))" strokeWidth="4" />
-        <circle cx="142" cy="18" r="6" fill="hsl(var(--accent))" />
+        {/* Sparkles */}
+        <circle cx="50" cy="50" r="5" fill="hsl(var(--accent))" className="sparkle" style={{animationDelay: '0s'}} />
+        <circle cx="150" cy="60" r="7" fill="hsl(var(--accent))" className="sparkle" style={{animationDelay: '1s'}}/>
+        <circle cx="60" cy="150" r="6" fill="hsl(var(--accent))" className="sparkle" style={{animationDelay: '2s'}}/>
 
       </svg>
       <style jsx>{`
-        @keyframes blink {
-          0%, 100% { transform: scale(1, 1); transform-origin: center; }
-          50% { transform: scale(1, 0.1); transform-origin: center; }
+        @keyframes float {
+          0% {
+            transform: translateY(0px) rotate(0deg);
+          }
+          50% {
+            transform: translateY(-15px) rotate(5deg);
+          }
+          100% {
+            transform: translateY(0px) rotate(0deg);
+          }
         }
+        @keyframes pulse {
+          0% { transform: scale(1); opacity: 0.8; }
+          50% { transform: scale(1.1); opacity: 1; }
+          100% { transform: scale(1); opacity: 0.8; }
+        }
+        .pulse {
+          animation: pulse 2.5s ease-in-out infinite;
+          transform-origin: center;
+        }
+
+        @keyframes sparkle {
+          0%, 100% { transform: scale(0); opacity: 0; }
+          50% { transform: scale(1); opacity: 1; }
+          75% { transform: scale(0); opacity: 0; }
+        }
+        .sparkle {
+          animation: sparkle 3s ease-in-out infinite;
+          transform-origin: center;
+        }
+
+        @keyframes morph {
+          0% {
+            d: path("M 100,20 C 140,20 180,60 180,100 C 180,140 140,180 100,180 C 60,180 20,140 20,100 C 20,60 60,20 100,20 Z");
+          }
+          50% {
+            d: path("M 100,30 C 130,10 190,70 170,110 C 150,150 110,190 70,170 C 30,150 10,110 30,70 C 50,30 70,50 100,30 Z");
+          }
+          100% {
+            d: path("M 100,20 C 140,20 180,60 180,100 C 180,140 140,180 100,180 C 60,180 20,140 20,100 C 20,60 60,20 100,20 Z");
+          }
+        }
+        .path {
+          animation: morph 8s ease-in-out infinite;
+        }
+
       `}</style>
     </div>
   );
