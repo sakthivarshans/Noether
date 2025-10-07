@@ -8,7 +8,7 @@
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the UserProfile entity."
+          "description": "Unique identifier for the UserProfile entity (matches Firebase Auth UID)."
         },
         "email": {
           "type": "string",
@@ -314,169 +314,53 @@
     ]
   },
   "firestore": {
-    "structure": [
-      {
-        "path": "/users/{userId}/userProfile",
-        "definition": {
-          "entityName": "UserProfile",
-          "schema": {
-            "$ref": "#/backend/entities/UserProfile"
-          },
-          "description": "Stores user profile information. The 'userId' parameter identifies the user who owns this profile.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier for the user."
-            }
-          ]
-        }
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/UserProfile"
       },
-      {
-        "path": "/users/{userId}/documents/{documentId}",
-        "definition": {
-          "entityName": "Document",
-          "schema": {
-            "$ref": "#/backend/entities/Document"
-          },
-          "description": "Stores documents uploaded by the user. The 'userId' parameter identifies the owner of the document.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier for the user."
-            },
-            {
-              "name": "documentId",
-              "description": "The unique identifier for the document."
-            }
-          ]
-        }
+      "description": "Stores public-facing user profile information. The document ID is the same as the Firebase Auth user ID."
+    },
+    "/users/{userId}/documents/{documentId}": {
+      "schema": {
+        "$ref": "#/entities/Document"
       },
-      {
-        "path": "/users/{userId}/documents/{documentId}/flashcards/{flashcardId}",
-        "definition": {
-          "entityName": "Flashcard",
-          "schema": {
-            "$ref": "#/backend/entities/Flashcard"
-          },
-          "description": "Stores flashcards generated from a specific document. The 'userId' parameter identifies the owner, and 'documentId' links to the parent document.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier for the user."
-            },
-            {
-              "name": "documentId",
-              "description": "The unique identifier for the document."
-            },
-            {
-              "name": "flashcardId",
-              "description": "The unique identifier for the flashcard."
-            }
-          ]
-        }
+      "description": "Stores documents uploaded by the user."
+    },
+    "/users/{userId}/documents/{documentId}/flashcards/{flashcardId}": {
+      "schema": {
+        "$ref": "#/entities/Flashcard"
       },
-      {
-        "path": "/users/{userId}/pyqAnswers/{pyqAnswerId}",
-        "definition": {
-          "entityName": "PYQAnswer",
-          "schema": {
-            "$ref": "#/backend/entities/PYQAnswer"
-          },
-          "description": "Stores answers generated for past year questions. The 'userId' parameter identifies the user who created the answer.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier for the user."
-            },
-            {
-              "name": "pyqAnswerId",
-              "description": "The unique identifier for the PYQ answer."
-            }
-          ]
-        }
+      "description": "Stores flashcards generated from a specific document."
+    },
+    "/users/{userId}/pyqAnswers/{pyqAnswerId}": {
+      "schema": {
+        "$ref": "#/entities/PYQAnswer"
       },
-      {
-        "path": "/users/{userId}/timetables/{timetableId}",
-        "definition": {
-          "entityName": "Timetable",
-          "schema": {
-            "$ref": "#/backend/entities/Timetable"
-          },
-          "description": "Stores study timetables generated for the user. The 'userId' parameter identifies the owner of the timetable.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier for the user."
-            },
-            {
-              "name": "timetableId",
-              "description": "The unique identifier for the timetable."
-            }
-          ]
-        }
+      "description": "Stores answers generated for past year questions."
+    },
+    "/users/{userId}/timetables/{timetableId}": {
+      "schema": {
+        "$ref": "#/entities/Timetable"
       },
-      {
-        "path": "/users/{userId}/todoTasks/{todoTaskId}",
-        "definition": {
-          "entityName": "TodoTask",
-          "schema": {
-            "$ref": "#/backend/entities/TodoTask"
-          },
-          "description": "Stores tasks in the user's to-do list. The 'userId' parameter identifies the user who created the task.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier for the user."
-            },
-            {
-              "name": "todoTaskId",
-              "description": "The unique identifier for the to-do task."
-            }
-          ]
-        }
+      "description": "Stores study timetables generated for the user."
+    },
+    "/users/{userId}/todoTasks/{todoTaskId}": {
+      "schema": {
+        "$ref": "#/entities/TodoTask"
       },
-      {
-        "path": "/users/{userId}/voiceNotes/{voiceNoteId}",
-        "definition": {
-          "entityName": "VoiceNote",
-          "schema": {
-            "$ref": "#/backend/entities/VoiceNote"
-          },
-          "description": "Stores voice notes created by the user. The 'userId' parameter identifies the user who created the voice note.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier for the user."
-            },
-            {
-              "name": "voiceNoteId",
-              "description": "The unique identifier for the voice note."
-            }
-          ]
-        }
+      "description": "Stores tasks in the user's to-do list."
+    },
+    "/users/{userId}/voiceNotes/{voiceNoteId}": {
+      "schema": {
+        "$ref": "#/entities/VoiceNote"
       },
-      {
-        "path": "/users/{userId}/gameScores/{gameScoreId}",
-        "definition": {
-          "entityName": "GameScore",
-          "schema": {
-            "$ref": "#/backend/entities/GameScore"
-          },
-          "description": "Stores the user's scores in brain games. The 'userId' parameter identifies the user who played the game.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier for the user."
-            },
-            {
-              "name": "gameScoreId",
-              "description": "The unique identifier for the game score."
-            }
-          ]
-        }
-      }
-    ],
-    "reasoning": "The Firestore structure is designed to provide a secure, scalable, and easily manageable data storage solution for the \"Noether\" application. The structure emphasizes authorization independence through denormalization and structural segregation, ensuring clear security rules and efficient data access. All data for individual users are stored under their respective user ID to maintain privacy and data ownership. The structure facilitates straightforward security rules, enabling secure 'list' operations and maintaining the integrity of ownership, timestamps, and denormalized data.\n\nAuthorization Independence is achieved primarily via path-based ownership.  For example, all documents, flashcards, PYQ answers, timetables, to-do tasks, voice notes, and game scores are stored under `/users/{userId}`, thus eliminating the need for complex `get()` calls in security rules. The structure implicitly enforces ownership. The structure also supports QAPs by segregating user data and using path-based ownership, guaranteeing that list operations are secure and only return data accessible to the requesting user.\n"
+      "description": "Stores voice notes created by the user."
+    },
+    "/users/{userId}/gameScores/{gameScoreId}": {
+      "schema": {
+        "$ref": "#/entities/GameScore"
+      },
+      "description": "Stores the user's scores in brain games."
+    }
   }
 }
-    
