@@ -1,23 +1,34 @@
 'use client';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Upload, FileText, Zap, BrainCircuit, BarChart3, Loader2 } from 'lucide-react';
+import { Upload, FileText, Zap, BrainCircuit, BarChart3, Loader2, RotateCw } from 'lucide-react';
 import { summarizeAndHighlightDocument, SummarizeAndHighlightDocumentOutput } from '@/ai/flows/summarize-and-highlight-document';
-import { generateFlashcardsFromDocument } from '@/ai/flows/generate-flashcards-from-document';
+import { generateFlashcardsFromDocument, GenerateFlashcardsFromDocumentOutput } from '@/ai/flows/generate-flashcards-from-document';
+import { useToast } from '@/hooks/use-toast';
+
+type Flashcard = {
+  front: string;
+  back: string;
+}
 
 export default function UploadPage() {
   const [fileName, setFileName] = useState<string | null>(null);
   const [fileDataUri, setFileDataUri] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [result, setResult] = useState<SummarizeAndHighlightDocumentOutput | null>(null);
+  const [generatedFlashcards, setGeneratedFlashcards] = useState<Flashcard[]>([]);
+  const [isGeneratingFlashcards, setIsGeneratingFlashcards] = useState(false);
+  const [flippedStates, setFlippedStates] = useState<boolean[]>([]);
+  const { toast } = useToast();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       setFileName(file.name);
       setResult(null);
+      setGeneratedFlashcards([]);
       const reader = new FileReader();
       reader.onload = (loadEvent) => {
         setFileDataUri(loadEvent.target?.result as string);
@@ -29,12 +40,17 @@ export default function UploadPage() {
   const handleUpload = async () => {
     if (!fileDataUri) return;
     setIsProcessing(true);
+    setGeneratedFlashcards([]);
     try {
         const response = await summarizeAndHighlightDocument({ documentDataUri: fileDataUri });
         setResult(response);
     } catch (e) {
         console.error(e);
-        // You might want to show a toast notification here
+        toast({
+            variant: "destructive",
+            title: "Uh oh! Something went wrong.",
+            description: "Could not process document.",
+        });
     } finally {
         setIsProcessing(false);
     }
@@ -42,17 +58,33 @@ export default function UploadPage() {
   
   const handleGenerateFlashcards = async () => {
     if(!result || !result.summary) return;
-
+    setIsGeneratingFlashcards(true);
     try {
       const flashcardResult = await generateFlashcardsFromDocument({ documentContent: result.summary });
-      // For now, let's just log the result. 
-      // In a real implementation, you'd want to display these flashcards.
-      console.log(flashcardResult);
-      alert(`${flashcardResult.flashcards.length} flashcards generated! Check the console.`);
+      setGeneratedFlashcards(flashcardResult.flashcards);
+      setFlippedStates(new Array(flashcardResult.flashcards.length).fill(false));
+      toast({
+        title: 'Flashcards Generated!',
+        description: `Successfully created ${flashcardResult.flashcards.length} flashcards.`,
+      });
     } catch (e) {
       console.error(e);
-      alert('Failed to generate flashcards.');
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: "Could not generate flashcards.",
+      });
+    } finally {
+        setIsGeneratingFlashcards(false);
     }
+  }
+
+  const handleCardClick = (index: number) => {
+    setFlippedStates(prev => {
+        const newFlipped = [...prev];
+        newFlipped[index] = !newFlipped[index];
+        return newFlipped;
+    });
   }
 
   return (
@@ -107,17 +139,50 @@ export default function UploadPage() {
           
           <Card className="lg:col-span-2">
             <CardHeader className="flex flex-row justify-between items-center">
-              <CardTitle className="flex items-center gap-2"><BrainCircuit className="w-5 h-5" /> Generated Flashcards</CardTitle>
-              <Button onClick={handleGenerateFlashcards} variant="outline" size="sm">Generate New</Button>
+              <div>
+                <CardTitle className="flex items-center gap-2"><BrainCircuit className="w-5 h-5" /> Generated Flashcards</CardTitle>
+                <CardDescription>Click the button to generate flashcards from the summary.</CardDescription>
+              </div>
+              <Button onClick={handleGenerateFlashcards} variant="outline" size="sm" disabled={isGeneratingFlashcards}>
+                {isGeneratingFlashcards ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Zap className="mr-2 h-4 w-4" />}
+                {isGeneratingFlashcards ? 'Generating...' : 'Generate Flashcards'}
+              </Button>
             </CardHeader>
             <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {result.flashcards.map((flashcard, index) => (
-                <Card key={index} className="bg-secondary">
-                  <CardHeader>
-                    <CardTitle className="text-sm">Q: {flashcard}</CardTitle>
-                  </CardHeader>
-                </Card>
-              ))}
+              {generatedFlashcards.length > 0 ? (
+                generatedFlashcards.map((flashcard, index) => (
+                  <div key={index} className="perspective-[1000px] h-64" onClick={() => handleCardClick(index)}>
+                      <div className={`relative w-full h-full text-center transition-transform duration-700 transform-style-3d ${flippedStates[index] ? 'rotate-y-180' : ''}`}>
+                          {/* Front of card */}
+                          <Card className="absolute w-full h-full backface-hidden flex flex-col justify-center items-center">
+                              <CardHeader>
+                                  <CardTitle className="text-lg">Question</CardTitle>
+                              </CardHeader>
+                              <CardContent>
+                                  <p>{flashcard.front}</p>
+                              </CardContent>
+                              <CardFooter>
+                                <p className="text-xs text-muted-foreground flex items-center"><RotateCw className="w-3 h-3 mr-1"/> Click to flip</p>
+                              </CardFooter>
+                          </Card>
+                          {/* Back of card */}
+                          <Card className="absolute w-full h-full backface-hidden rotate-y-180 flex flex-col justify-center items-center bg-secondary">
+                              <CardHeader>
+                                  <CardTitle className="text-lg">Answer</CardTitle>
+                              </CardHeader>
+                              <CardContent>
+                                  <p>{flashcard.back}</p>
+                              </CardContent>
+                              <CardFooter>
+                                <p className="text-xs text-muted-foreground flex items-center"><RotateCw className="w-3 h-3 mr-1"/> Click to flip</p>
+                              </CardFooter>
+                          </Card>
+                      </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-muted-foreground col-span-full text-center py-8">No flashcards generated yet.</p>
+              )}
             </CardContent>
           </Card>
 
@@ -135,6 +200,21 @@ export default function UploadPage() {
           )}
         </div>
       )}
+      <style jsx>{`
+        .transform-style-3d {
+          transform-style: preserve-3d;
+        }
+        .perspective-1000 {
+          perspective: 1000px;
+        }
+        .rotate-y-180 {
+          transform: rotateY(180deg);
+        }
+        .backface-hidden {
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
+        }
+      `}</style>
     </div>
   );
 }
