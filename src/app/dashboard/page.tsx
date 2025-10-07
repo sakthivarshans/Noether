@@ -55,9 +55,10 @@ function QuoteRotator() {
     }, []);
 
     return (
-        <p className="text-center text-sm italic text-muted-foreground transition-opacity duration-1000">
-            &ldquo;{quotes[quoteIndex]}&rdquo;
-        </p>
+        <div className="text-center text-sm italic text-muted-foreground transition-opacity duration-1000">
+            <p>&ldquo;{quotes[quoteIndex].text}&rdquo;</p>
+            <p className="font-semibold not-italic mt-1">&ndash; {quotes[quoteIndex].author}</p>
+        </div>
     );
 }
 
