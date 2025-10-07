@@ -240,37 +240,6 @@
         "completed"
       ]
     },
-    "VoiceNote": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "VoiceNote",
-      "type": "object",
-      "description": "Represents a voice note created by the user.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the VoiceNote entity."
-        },
-        "userId": {
-          "type": "string",
-          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N VoiceNote)"
-        },
-        "text": {
-          "type": "string",
-          "description": "Text transcribed from the voice note."
-        },
-        "createdDate": {
-          "type": "string",
-          "description": "Date and time when the voice note was created.",
-          "format": "date-time"
-        }
-      },
-      "required": [
-        "id",
-        "userId",
-        "text",
-        "createdDate"
-      ]
-    },
     "GameScore": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "GameScore",
@@ -349,12 +318,6 @@
         "$ref": "#/entities/TodoTask"
       },
       "description": "Stores tasks in the user's to-do list."
-    },
-    "/users/{userId}/voiceNotes/{voiceNoteId}": {
-      "schema": {
-        "$ref": "#/entities/VoiceNote"
-      },
-      "description": "Stores voice notes created by the user."
     },
     "/users/{userId}/gameScores/{gameScoreId}": {
       "schema": {

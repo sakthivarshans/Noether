@@ -9,7 +9,6 @@ import {
   FileQuestion,
   Home,
   ListTodo,
-  Mic,
   Music,
   Puzzle,
   Search,
@@ -26,7 +25,6 @@ const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: Home },
   { href: '/dashboard/upload', label: 'Upload', icon: Upload },
   { href: '/dashboard/pyq', label: 'PYQ', icon: FileQuestion },
-  { href: '/dashboard/notes', label: 'Voice Notes', icon: Mic },
   { href: '/dashboard/search', label: 'Topic Search', icon: Search },
   { href: '/dashboard/roadmap', label: 'Roadmap', icon: Waypoints },
 ];

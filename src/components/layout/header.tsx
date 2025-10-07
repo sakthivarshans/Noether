@@ -15,7 +15,6 @@ const navItems = [
     { href: '/dashboard', label: 'Dashboard' },
     { href: '/dashboard/upload', label: 'Upload' },
     { href: '/dashboard/pyq', label: 'PYQ' },
-    { href: '/dashboard/notes', label: 'Voice Notes' },
     { href: '/dashboard/search', label: 'Topic Search' },
     { href: '/dashboard/roadmap', label: 'Roadmap' },
     { href: '/dashboard/timetable', label: 'Timetable' },
