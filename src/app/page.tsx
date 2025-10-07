@@ -5,33 +5,46 @@ import Mascot from '@/components/mascot';
 import { useRouter } from 'next/navigation';
 import { User, LogIn, LogOut } from 'lucide-react';
 import Link from 'next/link';
-import { useFirebase, useUser } from '@/firebase';
+import { useFirebase } from '@/firebase';
 import { useEffect, useState } from 'react';
 import { signInWithGoogle, signOut, handleRedirectResult } from '@/firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 
 
 export default function LandingPage() {
   const router = useRouter();
   const { auth } = useFirebase();
-  const { user, isUserLoading } = useUser();
-  const [isHandlingRedirect, setIsHandlingRedirect] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-     if (auth) {
-        handleRedirectResult(auth).then(() => {
-            setIsHandlingRedirect(false);
-        });
-     } else {
-        setIsHandlingRedirect(false);
-     }
-  }, [auth]);
+    if (!auth) return;
 
+    // Handle the redirect result from Google Sign-In
+    handleRedirectResult(auth)
+      .then((resultUser) => {
+        if (resultUser) {
+          // If a user is returned from the redirect, update state and redirect
+          setUser(resultUser);
+          router.push('/dashboard');
+        } else {
+          // If no user from redirect, set up the normal auth state listener
+          const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+            setUser(currentUser);
+            setIsLoading(false);
+            if (currentUser) {
+              router.push('/dashboard');
+            }
+          });
+          return () => unsubscribe();
+        }
+      })
+      .catch(() => {
+        setIsLoading(false);
+      });
+      
+  }, [auth, router]);
 
-  useEffect(() => {
-    if (user) {
-      router.push('/dashboard');
-    }
-  }, [user, router]);
 
   const handleSignIn = async () => {
     if (auth) {
@@ -42,10 +55,10 @@ export default function LandingPage() {
   const handleSignOut = async () => {
     if(auth) {
       await signOut(auth);
+      setUser(null); // Explicitly set user to null on sign out
+      router.push('/');
     }
   };
-
-  const isLoading = isUserLoading || isHandlingRedirect;
 
 
   return (
