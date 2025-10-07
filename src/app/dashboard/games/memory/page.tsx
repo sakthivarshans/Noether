@@ -52,26 +52,28 @@ export default function MemoryGamePage() {
             if (firstCard.name === secondCard.name) {
                 setMatched(prev => [...prev, firstCard.name]);
                 addPoints(20);
-            }
-            
-            setTimeout(() => {
                 setFlipped([]);
                 setIsChecking(false);
-            }, 1000);
+            } else {
+                setTimeout(() => {
+                    setFlipped([]);
+                    setIsChecking(false);
+                }, 1000);
+            }
         }
     }, [flipped, cards, addPoints]);
 
 
     const handleCardClick = (index: number) => {
-        if (isChecking || flipped.includes(index) || matched.includes(cards[index].name)) {
+        if (isChecking || flipped.includes(index) || matched.includes(cards[index].name) || flipped.length >= 2) {
             return;
         }
 
-        if (flipped.length < 2) {
-            setFlipped(prev => [...prev, index]);
-            if (flipped.length === 0) { // First card of a potential pair
-                 setMoves(moves + 1);
-            }
+        const newFlipped = [...flipped, index];
+        setFlipped(newFlipped);
+
+        if (newFlipped.length === 1) { // First card of a potential pair
+             setMoves(moves + 1);
         }
     };
 
