@@ -195,8 +195,10 @@ export default function TimetablePage() {
                                           className="absolute left-2 right-2 p-2 rounded-lg bg-primary/20 border border-primary/50"
                                           style={{ top: `${top}px`, height: `${height}px` }}
                                         >
-                                            <p className="font-bold text-sm truncate text-primary">{entry.subject}</p>
-                                            <p className="text-xs text-muted-foreground">{entry.startTime} - {entry.endTime}</p>
+                                            <div className="flex justify-between items-start h-full">
+                                                <p className="font-bold text-sm truncate text-primary">{entry.subject}</p>
+                                                <p className="text-xs text-muted-foreground whitespace-nowrap">{entry.startTime} - {entry.endTime}</p>
+                                            </div>
                                         </div>
                                     )
                                 })}
