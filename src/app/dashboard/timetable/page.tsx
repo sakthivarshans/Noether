@@ -44,7 +44,7 @@ export default function TimetablePage() {
     const breakMinutes = 5;
     const totalBreaks = numberOfSubjects - 1 > 0 ? numberOfSubjects - 1 : 0;
     const studyMinutes = totalMinutes - (totalBreaks * breakMinutes);
-    const minutesPerSubject = Math.floor(studyMinutes / numberOfSubjects);
+    const minutesPerSubject = Math.round(studyMinutes / numberOfSubjects);
 
     if (minutesPerSubject <= 0) {
         // Handle case where hours are not enough for subjects with breaks
