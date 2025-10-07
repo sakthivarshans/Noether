@@ -63,7 +63,7 @@ export function Sidebar() {
         <div className="flex h-14 items-center border-b px-6">
           <Link href="/dashboard" className="flex items-center gap-2 font-headline font-semibold">
             <div className="w-8 h-8"><Mascot /></div>
-            <span>Noether</span>
+            <span className="font-brand text-2xl text-primary">Noether</span>
           </Link>
         </div>
         <div className="flex-1 overflow-auto py-2">

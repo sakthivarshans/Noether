@@ -19,6 +19,7 @@ export default {
       fontFamily: {
         body: ['var(--font-body)', 'sans-serif'],
         headline: ['var(--font-headline)', 'sans-serif'],
+        brand: ['var(--font-brand)', 'cursive'],
       },
       colors: {
         border: "hsl(var(--border))",

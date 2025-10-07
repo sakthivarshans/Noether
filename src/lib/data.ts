@@ -28,7 +28,7 @@ export const quotes = [
   "Winning isn't everything, but wanting to win is.",
   "Either you run the day, or the day runs you.",
   "The two most important days in your life are the day you are born and the day you find out why.",
-  "The best revenge is massive success."
+  "The best way to predict the future is to create it."
 ];
 
 export const musicTracks = [
@@ -44,4 +44,5 @@ export const games = [
     { id: 'sudoku', name: 'Sudoku', description: 'A classic logic puzzle.' },
     { id: 'memory', name: 'Memory Game', description: 'Match pairs of cards.' },
     { id: 'quiz', name: 'Math Quiz', description: 'Test your calculation skills.' },
+    { id: 'reaction', name: 'Reaction Time', description: 'Test your reflexes.' },
 ];

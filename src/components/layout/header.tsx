@@ -40,11 +40,11 @@ export function Header() {
         <SheetContent side="left" className="flex flex-col">
           <nav className="grid gap-2 text-lg font-medium">
             <Link
-              href="#"
+              href="/dashboard"
               className="flex items-center gap-2 text-lg font-semibold mb-4"
             >
               <div className="w-8 h-8"><Mascot/></div>
-              <span className="font-headline">Noether</span>
+              <span className="font-brand text-2xl text-primary">Noether</span>
             </Link>
             {navItems.map(item => (
                 <Link

@@ -2,9 +2,16 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { games } from '@/lib/data';
-import { ArrowRight, Award } from 'lucide-react';
+import { ArrowRight, Award, Brain, Atom, Dna, FlaskConical, Microscope, Rocket, TestTube, Lightbulb, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { usePoints } from '@/context/PointsContext';
+
+const gameIcons: { [key: string]: React.ElementType } = {
+  sudoku: Brain,
+  memory: Dna,
+  quiz: FlaskConical,
+  reaction: Zap,
+};
 
 export default function GamesPage() {
   const { points } = usePoints();
@@ -25,27 +32,35 @@ export default function GamesPage() {
         </Card>
       </div>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {games.map(game => (
-          <Link href={`/dashboard/games/${game.id}`} key={game.id}>
-            <Card className="group h-full flex flex-col justify-between hover:bg-accent hover:border-primary/50 transition-all transform hover:-translate-y-1">
-              <div>
-                <CardHeader>
-                  <CardTitle className="font-bold">{game.name}</CardTitle>
-                  <CardDescription>{game.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {/* High score could be implemented with Firebase */}
-                  <p className="text-sm text-muted-foreground">High Score: 0</p>
-                </CardContent>
-              </div>
-              <div className="p-6 pt-0">
-                  <p className="text-sm font-medium text-primary flex items-center">
-                    Play Now <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </p>
-              </div>
-            </Card>
-          </Link>
-        ))}
+        {games.map(game => {
+          const Icon = gameIcons[game.id] || Brain;
+          return (
+            <Link href={`/dashboard/games/${game.id}`} key={game.id}>
+              <Card className="group h-full flex flex-col justify-between hover:bg-accent hover:border-primary/50 transition-all transform hover:-translate-y-1">
+                <div>
+                  <CardHeader className="flex flex-row items-center gap-4">
+                    <div className="p-3 bg-primary/10 rounded-lg">
+                      <Icon className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <CardTitle className="font-bold">{game.name}</CardTitle>
+                      <CardDescription>{game.description}</CardDescription>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    {/* High score could be implemented with Firebase */}
+                    <p className="text-sm text-muted-foreground">High Score: 0</p>
+                  </CardContent>
+                </div>
+                <div className="p-6 pt-0">
+                    <p className="text-sm font-medium text-primary flex items-center">
+                      Play Now <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </p>
+                </div>
+              </Card>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );
