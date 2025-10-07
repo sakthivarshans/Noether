@@ -23,7 +23,6 @@ export default function VoiceNotesPage() {
   const manualStop = useRef(false);
 
   useEffect(() => {
-    // This effect runs only on the client, after the component mounts
     if (typeof window !== 'undefined') {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (SpeechRecognition) {
@@ -33,25 +32,25 @@ export default function VoiceNotesPage() {
         recognition.lang = 'en-US';
 
         recognition.onresult = (event: any) => {
-          let finalTranscript = '';
-          let interimTranscript = '';
+          let final_transcript = transcribedText;
+          let interim_transcript = '';
+
           for (let i = event.resultIndex; i < event.results.length; ++i) {
             if (event.results[i].isFinal) {
-              finalTranscript += event.results[i][0].transcript + ' ';
+              final_transcript += event.results[i][0].transcript;
             } else {
-              interimTranscript += event.results[i][0].transcript;
+              interim_transcript += event.results[i][0].transcript;
             }
           }
-          setTranscribedText(prev => prev + finalTranscript);
-          setInterimText(interimTranscript);
+          setTranscribedText(final_transcript);
+          setInterimText(interim_transcript);
         };
         
         recognition.onend = () => {
-          // Only set recording to false if it wasn't a manual stop
           if (!manualStop.current) {
             setIsRecording(false);
           }
-          manualStop.current = false; // Reset for next time
+          manualStop.current = false;
         };
 
         recognition.onerror = (event: any) => {
@@ -71,9 +70,7 @@ export default function VoiceNotesPage() {
                     errorMessage = "A network error occurred. Please check your internet connection.";
                     break;
                 case 'aborted':
-                    // This can happen if the user stops it manually, so we can often ignore it.
-                    errorMessage = "Recording was aborted.";
-                    break;
+                    return; // Don't show an error for manual aborts
                 case 'language-not-supported':
                     errorMessage = "The language configured for recognition is not supported.";
                     break;
@@ -96,14 +93,14 @@ export default function VoiceNotesPage() {
         });
       }
     }
-
+    
     return () => {
       if (recognitionRef.current) {
         recognitionRef.current.stop();
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [transcribedText]);
 
   const handleToggleRecording = () => {
     if (!recognitionRef.current) {
