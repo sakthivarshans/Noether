@@ -20,6 +20,7 @@ export default function VoiceNotesPage() {
   const [interimText, setInterimText] = useState('');
   const recognitionRef = useRef<any>(null);
   const { toast } = useToast();
+  const manualStop = useRef(false);
 
   useEffect(() => {
     // This effect runs only on the client, after the component mounts
@@ -46,10 +47,11 @@ export default function VoiceNotesPage() {
         };
         
         recognition.onend = () => {
-            // Check the state before deciding to stop, to avoid race conditions
-            if (recognitionRef.current && isRecording) {
-                setIsRecording(false);
-            }
+          // Only set recording to false if it wasn't a manual stop
+          if (!manualStop.current) {
+            setIsRecording(false);
+          }
+          manualStop.current = false; // Reset for next time
         };
 
         recognition.onerror = (event: any) => {
@@ -114,6 +116,7 @@ export default function VoiceNotesPage() {
     }
 
     if (isRecording) {
+      manualStop.current = true;
       recognitionRef.current.stop();
       setIsRecording(false);
        toast({
@@ -123,6 +126,7 @@ export default function VoiceNotesPage() {
       setTranscribedText('');
       setInterimText('');
       try {
+        manualStop.current = false;
         recognitionRef.current.start();
         setIsRecording(true);
         toast({
