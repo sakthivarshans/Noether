@@ -23,6 +23,7 @@ import { useTasks } from '@/context/TaskContext';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow } from 'date-fns';
+import Autoplay from "embla-carousel-autoplay";
 
 const tools = [
   { href: '/dashboard/upload', label: 'Upload Document', icon: Upload, description: 'Upload PPT/PDF for AI summaries and flashcards' },
@@ -76,13 +77,18 @@ function UpcomingTasks() {
           align: "start",
           loop: true,
         }}
-        className="w-full max-w-4xl mx-auto"
+        plugins={[
+            Autoplay({
+              delay: 3000,
+            }),
+        ]}
+        className="w-full max-w-lg mx-auto"
       >
         <CarouselContent>
           {upcomingTasks.map((task) => (
-            <CarouselItem key={task.id} className="md:basis-1/2 lg:basis-1/3">
+            <CarouselItem key={task.id}>
               <div className="p-1">
-                <Card>
+                <Card className="bg-gradient-to-r from-background to-secondary/50">
                   <CardHeader>
                     <CardTitle className="text-lg flex items-center gap-2">
                         <Bell className="w-5 h-5 text-primary" />
