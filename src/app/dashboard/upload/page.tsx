@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -153,27 +154,31 @@ export default function UploadPage() {
               {generatedFlashcards.length > 0 ? (
                 generatedFlashcards.map((flashcard, index) => (
                   <div key={index} className="perspective-1000 h-64" onClick={() => handleCardClick(index)}>
-                      <div className={`relative w-full h-full text-center transition-transform duration-700 transform-style-3d ${flippedStates[index] ? 'rotate-y-180' : ''}`}>
+                      <div className={`relative w-full h-full text-left transition-transform duration-700 transform-style-3d ${flippedStates[index] ? 'rotate-y-180' : ''}`}>
                           {/* Front of card */}
-                          <Card className="absolute w-full h-full backface-hidden flex flex-col justify-center items-center">
-                              <CardHeader>
-                                  <CardTitle className="text-lg">Question</CardTitle>
-                              </CardHeader>
-                              <CardContent>
-                                  <p>{flashcard.front}</p>
-                              </CardContent>
+                          <Card className="absolute w-full h-full backface-hidden flex flex-col justify-between">
+                              <div>
+                                <CardHeader>
+                                    <CardTitle className="text-lg">Question</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <p>{flashcard.front}</p>
+                                </CardContent>
+                              </div>
                               <CardFooter>
                                 <p className="text-xs text-muted-foreground flex items-center"><RotateCw className="w-3 h-3 mr-1"/> Click to flip</p>
                               </CardFooter>
                           </Card>
                           {/* Back of card */}
-                          <Card className="absolute w-full h-full backface-hidden rotate-y-180 flex flex-col justify-center items-center bg-secondary">
-                              <CardHeader>
-                                  <CardTitle className="text-lg">Answer</CardTitle>
-                              </CardHeader>
-                              <CardContent>
-                                  <p>{flashcard.back}</p>
-                              </CardContent>
+                          <Card className="absolute w-full h-full backface-hidden rotate-y-180 flex flex-col justify-between bg-secondary">
+                              <div>
+                                <CardHeader>
+                                    <CardTitle className="text-lg">Answer</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <p>{flashcard.back}</p>
+                                </CardContent>
+                              </div>
                               <CardFooter>
                                 <p className="text-xs text-muted-foreground flex items-center"><RotateCw className="w-3 h-3 mr-1"/> Click to flip</p>
                               </CardFooter>
@@ -219,3 +224,4 @@ export default function UploadPage() {
     </div>
   );
 }
+
