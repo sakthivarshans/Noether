@@ -3,8 +3,11 @@ import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Check, X, Award } from 'lucide-react';
+import { Check, X, Award, Timer } from 'lucide-react';
 import { usePoints } from '@/context/PointsContext';
+import { Progress } from '@/components/ui/progress';
+
+const TIME_LIMIT = 10; // 10 seconds per question
 
 const generateProblem = () => {
   const operators = ['+', '-', '×'];
@@ -42,9 +45,42 @@ export default function MathQuizPage() {
   const [questionsAnswered, setQuestionsAnswered] = useState(0);
   const { addPoints } = usePoints();
   const inputRef = useRef<HTMLInputElement>(null);
+  const [timeLeft, setTimeLeft] = useState(TIME_LIMIT);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const [pointsAwarded, setPointsAwarded] = useState(0);
+
+  const startTimer = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    setTimeLeft(TIME_LIMIT);
+    timerRef.current = setInterval(() => {
+      setTimeLeft(prev => prev - 1);
+    }, 1000);
+  };
+
+  const nextQuestion = () => {
+    setProblem(generateProblem());
+    setUserAnswer('');
+    setFeedback(null);
+    setPointsAwarded(0);
+    startTimer();
+  };
 
   useEffect(() => {
-    // Focus the input when a new problem is shown and there's no feedback
+    startTimer();
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (timeLeft <= 0) {
+      if (timerRef.current) clearInterval(timerRef.current);
+      setFeedback('incorrect');
+      setTimeout(nextQuestion, 1500);
+    }
+  }, [timeLeft]);
+
+  useEffect(() => {
     if (!feedback && inputRef.current) {
       inputRef.current.focus();
     }
@@ -53,19 +89,20 @@ export default function MathQuizPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (timerRef.current) clearInterval(timerRef.current);
+    
+    const points = timeLeft;
+    setPointsAwarded(points);
+
     if (userAnswer === problem.answer) {
       setFeedback('correct');
-      addPoints(10);
+      addPoints(points);
     } else {
       setFeedback('incorrect');
     }
     setQuestionsAnswered(questionsAnswered + 1);
 
-    setTimeout(() => {
-      setProblem(generateProblem());
-      setUserAnswer('');
-      setFeedback(null);
-    }, 1500);
+    setTimeout(nextQuestion, 1500);
   };
 
   return (
@@ -76,6 +113,14 @@ export default function MathQuizPage() {
           <CardDescription>Solve the problem to earn points!</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col items-center gap-6">
+          <div className="w-full space-y-3">
+              <div className="flex justify-center items-center gap-2 text-muted-foreground">
+                  <Timer className="w-5 h-5"/>
+                  <span>Time Left: {timeLeft}s</span>
+              </div>
+              <Progress value={(timeLeft / TIME_LIMIT) * 100} className="h-2" />
+          </div>
+
           <div className="text-4xl font-bold font-mono tracking-widest p-6 bg-secondary rounded-lg">
             {problem.question} = ?
           </div>
@@ -98,7 +143,7 @@ export default function MathQuizPage() {
           {feedback === 'correct' && (
             <div className="flex items-center text-green-500 gap-2">
               <Check className="h-6 w-6" />
-              <span className="font-bold">Correct! +10 points</span>
+              <span className="font-bold">Correct! +{pointsAwarded} points</span>
               <Award className="h-5 w-5" />
             </div>
           )}
