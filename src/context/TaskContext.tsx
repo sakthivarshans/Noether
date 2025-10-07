@@ -50,7 +50,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const checkDeadlines = () => {
-      if (isLoading) return;
+      if (isLoading || !tasks) return;
       tasks.forEach(task => {
         if (!task.completed && !notifiedTasks.includes(task.id)) {
           const now = new Date();
@@ -87,7 +87,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
 
   const toggleTaskCompletion = (id: string) => {
     if (!firestore || !tasksCollectionPath) return;
-    const task = tasks.find(t => t.id === id);
+    const task = tasks?.find(t => t.id === id);
     if (!task) return;
     const docRef = doc(firestore, tasksCollectionPath, id);
     updateDocumentNonBlocking(docRef, { completed: !task.completed });
@@ -104,7 +104,8 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
     addTask,
     toggleTaskCompletion,
     deleteTask,
-  }), [tasks, addTask, toggleTaskCompletion, deleteTask]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [tasks]);
 
 
   return (
