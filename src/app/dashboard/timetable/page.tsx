@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Zap, Clock } from 'lucide-react';
-import { parse, differenceInMinutes } from 'date-fns';
+import { parse, differenceInMinutes, format } from 'date-fns';
 
 interface TimetableEntry {
   subject: string;
@@ -64,8 +64,8 @@ export default function TimetablePage() {
 
       newTimetable.push({
         subject: subjectNames[i] || `Subject ${i + 1}`,
-        startTime: startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        endTime: endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        startTime: format(startTime, 'h:mm a'),
+        endTime: format(endTime, 'h:mm a'),
       });
       
       currentTime = new Date(endTime.getTime());
@@ -75,8 +75,8 @@ export default function TimetablePage() {
         const breakEnd = new Date(breakStart.getTime() + breakMinutes * 60000);
         newTimetable.push({
             subject: 'Break',
-            startTime: breakStart.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            endTime: breakEnd.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            startTime: format(breakStart, 'h:mm a'),
+            endTime: format(breakEnd, 'h:mm a'),
         });
         currentTime = breakEnd;
       }
@@ -203,4 +203,3 @@ export default function TimetablePage() {
     </div>
   );
 }
-
