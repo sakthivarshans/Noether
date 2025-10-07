@@ -161,16 +161,16 @@ export default function TimetablePage() {
             {timetable ? (
               timetable.length > 0 ? (
                 <div className="relative flex h-[840px]"> {/* 14 hours * 60px/hour = 840px */}
-                    <div className="w-16 text-right pr-2">
+                    <div className="w-16 flex-shrink-0 text-right pr-2">
                         {hoursInDay.map(hour => (
                             <div key={hour} className="h-[60px] text-xs text-muted-foreground relative -top-2">
-                                {hour % 12 === 0 ? 12 : hour % 12}:00 {hour < 12 || hour === 24 ? 'AM' : 'PM'}
+                                {format(new Date().setHours(hour, 0), 'h:mm a')}
                             </div>
                         ))}
                     </div>
-                    <div className="flex-1 grid grid-rows-[repeat(840,_minmax(0,_1fr))] border-l">
+                    <div className="relative flex-1 border-l">
                          {hoursInDay.slice(1).map(hour => (
-                            <div key={`line-${hour}`} className="row-start-[_var(--row-start)_] h-px bg-border" style={{ '--row-start': (hour-8)*60 } as React.CSSProperties} />
+                            <div key={`line-${hour}`} className="absolute w-full h-px bg-border" style={{ top: `${(hour-8)*60}px` }} />
                          ))}
 
                         {timetable.map((entry, index) => {
@@ -178,7 +178,7 @@ export default function TimetablePage() {
                             const height = calculateHeight(entry.startTime, entry.endTime);
                             const isBreak = entry.subject === 'Break';
                             return (
-                                <div key={index} className={`absolute left-[4.5rem] right-0 p-2 rounded-lg ${isBreak ? 'bg-secondary' : 'bg-primary/20 border border-primary/50'}`} style={{ top: `${top}px`, height: `${height}px`}}>
+                                <div key={index} className={`absolute left-2 right-2 p-2 rounded-lg ${isBreak ? 'bg-secondary' : 'bg-primary/20 border border-primary/50'}`} style={{ top: `${top}px`, height: `${height}px`}}>
                                     <p className={`font-bold text-sm ${isBreak ? 'text-muted-foreground' : 'text-primary'}`}>{entry.subject}</p>
                                     <p className="text-xs text-muted-foreground">{entry.startTime} - {entry.endTime}</p>
                                 </div>
