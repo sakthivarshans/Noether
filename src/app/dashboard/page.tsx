@@ -5,7 +5,7 @@ import {
   Calendar,
   FileQuestion,
   ListTodo,
-  Mic,
+  Bed,
   Music,
   Puzzle,
   Search,
@@ -28,6 +28,9 @@ const tools = [
   { href: '/dashboard/music', label: 'Focus Music', icon: Music, description: 'Listen to concentration-boosting tracks' },
   { href: '/dashboard/pyq', label: 'PYQ Answers', icon: FileQuestion, description: 'Get AI-generated answers for past papers' },
   { href: '/dashboard/pomodoro', label: 'Pomodoro', icon: Timer, description: 'Stay focused with 25-minute sessions' },
+  { href: '/dashboard/power-nap', label: 'Power Nap', icon: Bed, description: 'Recharge with a quick power nap' },
+  { href: '/dashboard/search', label: 'Topic Search', icon: Search, description: 'Get AI-powered summaries on any topic' },
+  
 ];
 
 function QuoteRotator() {
@@ -73,9 +76,9 @@ export default function Dashboard() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {tools.map((tool, index) => (
           <Link href={tool.href} key={tool.href}>
-            <Card className="group h-full p-6 text-center flex flex-col items-center justify-center rounded-2xl transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/20">
+            <Card className="group h-full p-6 text-center flex flex-col items-center justify-center rounded-3xl transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/20">
               <div 
-                className={`absolute inset-0 rounded-2xl opacity-80 group-hover:opacity-100 transition-opacity duration-300 ${index % 3 === 0 ? 'bg-gradient-to-br from-purple-100 to-blue-100' : index % 3 === 1 ? 'bg-gradient-to-br from-green-100 to-cyan-100' : 'bg-gradient-to-br from-purple-100 to-pink-100'} dark:from-purple-900/20 dark:to-blue-900/20`}>
+                className={`absolute inset-0 rounded-3xl opacity-80 group-hover:opacity-100 transition-opacity duration-300 ${index % 3 === 0 ? 'bg-gradient-to-br from-purple-100 to-blue-100' : index % 3 === 1 ? 'bg-gradient-to-br from-green-100 to-cyan-100' : 'bg-gradient-to-br from-purple-100 to-pink-100'} dark:from-purple-900/20 dark:to-blue-900/20`}>
               </div>
               <div className="relative flex flex-col items-center justify-center">
                   <div className="p-4 bg-white/50 dark:bg-black/20 rounded-full mb-4">
