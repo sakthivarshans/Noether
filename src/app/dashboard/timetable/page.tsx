@@ -5,8 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Zap } from 'lucide-react';
+import { Zap, Clock } from 'lucide-react';
+import { parse, differenceInMinutes } from 'date-fns';
 
 interface TimetableEntry {
   subject: string;
@@ -37,7 +37,6 @@ export default function TimetablePage() {
     setSubjectNames(newSubjectNames);
   };
 
-
   const generateTimetable = () => {
     if (numberOfSubjects <= 0 || hours <= 0) return;
 
@@ -52,9 +51,7 @@ export default function TimetablePage() {
         return;
     }
     
-    // Round duration to nearest 5 minutes
     const roundedMinutesPerSubject = Math.max(5, Math.round(minutesPerSubject / 5) * 5);
-
 
     const newTimetable: TimetableEntry[] = [];
     let currentTime = new Date();
@@ -71,13 +68,37 @@ export default function TimetablePage() {
         endTime: endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       });
       
-      // Add break if it's not the last subject
+      currentTime = new Date(endTime.getTime());
+
       if (i < numberOfSubjects - 1) {
-         currentTime = new Date(endTime.getTime() + breakMinutes * 60000);
+        const breakStart = new Date(currentTime.getTime());
+        const breakEnd = new Date(breakStart.getTime() + breakMinutes * 60000);
+        newTimetable.push({
+            subject: 'Break',
+            startTime: breakStart.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            endTime: breakEnd.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        });
+        currentTime = breakEnd;
       }
     }
     setTimetable(newTimetable);
   };
+
+  const timeToPosition = (time: string) => {
+    const baseDate = new Date();
+    const parsedTime = parse(time, 'h:mm a', baseDate);
+    const startOfDay = new Date(baseDate.setHours(8, 0, 0, 0)); // Calendar starts at 8 AM
+    return differenceInMinutes(parsedTime, startOfDay);
+  };
+
+  const calculateHeight = (startTime: string, endTime: string) => {
+      const baseDate = new Date();
+      const parsedStart = parse(startTime, 'h:mm a', baseDate);
+      const parsedEnd = parse(endTime, 'h:mm a', baseDate);
+      return differenceInMinutes(parsedEnd, parsedStart);
+  }
+
+  const hoursInDay = Array.from({ length: 15 }, (_, i) => 8 + i); // 8 AM to 10 PM
 
   return (
     <div className="grid gap-6 lg:grid-cols-3">
@@ -132,40 +153,47 @@ export default function TimetablePage() {
 
       <div className="lg:col-span-2">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Your Study Timetable</CardTitle>
-              <CardDescription>Here is your generated schedule with 5-minute breaks.</CardDescription>
-            </div>
+          <CardHeader>
+            <CardTitle>Your Study Timetable</CardTitle>
+            <CardDescription>Here is your generated schedule, shown for today.</CardDescription>
           </CardHeader>
           <CardContent>
             {timetable ? (
               timetable.length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Subject</TableHead>
-                      <TableHead>Start Time</TableHead>
-                      <TableHead>End Time</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {timetable.map((entry, index) => (
-                      <TableRow key={index}>
-                        <TableCell className="font-medium">{entry.subject}</TableCell>
-                        <TableCell>{entry.startTime}</TableCell>
-                        <TableCell>{entry.endTime}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                <div className="relative flex h-[840px]"> {/* 14 hours * 60px/hour = 840px */}
+                    <div className="w-16 text-right pr-2">
+                        {hoursInDay.map(hour => (
+                            <div key={hour} className="h-[60px] text-xs text-muted-foreground relative -top-2">
+                                {hour % 12 === 0 ? 12 : hour % 12}:00 {hour < 12 || hour === 24 ? 'AM' : 'PM'}
+                            </div>
+                        ))}
+                    </div>
+                    <div className="flex-1 grid grid-rows-[repeat(840,_minmax(0,_1fr))] border-l">
+                         {hoursInDay.slice(1).map(hour => (
+                            <div key={`line-${hour}`} className="row-start-[_var(--row-start)_] h-px bg-border" style={{ '--row-start': (hour-8)*60 } as React.CSSProperties} />
+                         ))}
+
+                        {timetable.map((entry, index) => {
+                            const top = timeToPosition(entry.startTime);
+                            const height = calculateHeight(entry.startTime, entry.endTime);
+                            const isBreak = entry.subject === 'Break';
+                            return (
+                                <div key={index} className={`absolute left-[4.5rem] right-0 p-2 rounded-lg ${isBreak ? 'bg-secondary' : 'bg-primary/20 border border-primary/50'}`} style={{ top: `${top}px`, height: `${height}px`}}>
+                                    <p className={`font-bold text-sm ${isBreak ? 'text-muted-foreground' : 'text-primary'}`}>{entry.subject}</p>
+                                    <p className="text-xs text-muted-foreground">{entry.startTime} - {entry.endTime}</p>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </div>
               ) : (
                 <div className="text-center text-destructive-foreground bg-destructive/80 p-4 rounded-md">
                   <p>Not enough time to schedule all subjects with breaks. Please increase the total study hours.</p>
                 </div>
               )
             ) : (
-              <div className="text-center text-muted-foreground py-12">
+              <div className="text-center text-muted-foreground py-12 flex flex-col items-center justify-center h-[840px]">
+                <Clock className="w-12 h-12 mb-4 text-primary/30"/>
                 <p>Your timetable will appear here.</p>
               </div>
             )}
@@ -175,3 +203,4 @@ export default function TimetablePage() {
     </div>
   );
 }
+
