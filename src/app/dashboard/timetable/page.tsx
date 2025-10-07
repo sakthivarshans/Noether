@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Zap, Clock } from 'lucide-react';
-import { parse, differenceInMinutes, format, addMinutes } from 'date-fns';
+import { parse, differenceInMinutes, format } from 'date-fns';
 
 interface TimetableEntry {
   subject: string;
@@ -160,13 +160,13 @@ export default function TimetablePage() {
           <CardContent>
             {timetable ? (
               timetable.length > 0 ? (
-                <div className="relative h-[840px] overflow-y-auto"> {/* 14 hours * 60px/hour = 840px */}
+                <div className="relative h-[840px] overflow-y-auto">
                     <div className="grid" style={{ gridTemplateColumns: 'auto 1fr' }}>
                         {/* Time labels */}
                         <div className="w-16 pr-2 text-right">
                             {hoursInDay.map(hour => (
                                 <div key={hour} className="h-[60px] text-xs text-muted-foreground relative -top-2">
-                                    {format(new Date().setHours(hour, 0), 'h a')}
+                                    {format(new Date(new Date().setHours(hour, 0)), 'h a')}
                                 </div>
                             ))}
                         </div>
@@ -178,26 +178,27 @@ export default function TimetablePage() {
                                 <div key={`line-${hour}`} className="absolute w-full h-px bg-border" style={{ top: `${(hour - 8) * 60}px` }} />
                             ))}
 
-                            {/* Timetable entries */}
-                            {timetable.map((entry, index) => {
-                                const top = timeToPosition(entry.startTime);
-                                const height = calculateHeight(entry.startTime, entry.endTime);
-                                const isBreak = entry.subject === 'Break';
-                                
-                                // Prevent height from being 0 for very short events
-                                const minHeight = Math.max(height, 10); 
+                            {/* Timetable entries container */}
+                            <div className="absolute top-0 left-0 right-0 bottom-0">
+                                {timetable.map((entry, index) => {
+                                    const top = timeToPosition(entry.startTime);
+                                    const height = calculateHeight(entry.startTime, entry.endTime);
+                                    const isBreak = entry.subject === 'Break';
+                                    
+                                    const minHeight = Math.max(height, 10); 
 
-                                return (
-                                    <div 
-                                      key={index} 
-                                      className={`absolute left-2 right-2 p-2 rounded-lg ${isBreak ? 'bg-secondary' : 'bg-primary/20 border border-primary/50'}`} 
-                                      style={{ top: `${top}px`, height: `${minHeight}px` }}
-                                    >
-                                        <p className={`font-bold text-sm truncate ${isBreak ? 'text-muted-foreground' : 'text-primary'}`}>{entry.subject}</p>
-                                        <p className="text-xs text-muted-foreground">{entry.startTime} - {entry.endTime}</p>
-                                    </div>
-                                )
-                            })}
+                                    return (
+                                        <div 
+                                          key={index} 
+                                          className={`absolute left-2 right-2 p-2 rounded-lg ${isBreak ? 'bg-secondary' : 'bg-primary/20 border border-primary/50'}`} 
+                                          style={{ top: `${top}px`, height: `${minHeight}px` }}
+                                        >
+                                            <p className={`font-bold text-sm truncate ${isBreak ? 'text-muted-foreground' : 'text-primary'}`}>{entry.subject}</p>
+                                            <p className="text-xs text-muted-foreground">{entry.startTime} - {entry.endTime}</p>
+                                        </div>
+                                    )
+                                })}
+                            </div>
                         </div>
                     </div>
                 </div>
