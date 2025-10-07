@@ -38,13 +38,22 @@ export default function VoiceNotesPage() {
         };
         
         recognition.onend = () => {
-            setIsRecording(false);
+            if (isRecording) {
+              setIsRecording(false);
+            }
         };
 
         recognition.onerror = (event: any) => {
+            let errorMessage = 'An unknown error occurred.';
+            if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+              errorMessage = "Microphone access was denied. Please grant permission in your browser's settings.";
+            } else if (event.error === 'no-speech') {
+              errorMessage = "No speech was detected. Please try again.";
+            }
+
             toast({
                 title: "Voice Recognition Error",
-                description: event.error,
+                description: errorMessage,
                 variant: "destructive",
             });
             setIsRecording(false);
@@ -65,12 +74,14 @@ export default function VoiceNotesPage() {
         recognitionRef.current.stop();
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [toast]);
 
   const handleToggleRecording = () => {
     if (!recognitionRef.current) {
       toast({
         title: "Voice recognition is not available.",
+        description: "Your browser may not support this feature.",
         variant: "destructive",
       });
       return;
@@ -78,30 +89,34 @@ export default function VoiceNotesPage() {
 
     if (isRecording) {
       recognitionRef.current.stop();
+      setIsRecording(false);
+       toast({
+        title: 'Recording stopped!',
+      })
     } else {
       setTranscribedText('');
       setInterimText('');
       recognitionRef.current.start();
+      setIsRecording(true);
       toast({
         title: 'Recording started!',
         description: 'Start speaking to transcribe your notes.',
       })
     }
-    setIsRecording(!isRecording);
   };
   
   const handleDownload = (format: 'txt' | 'docx') => {
-    const final_text = transcribedText.trim();
-    if (!final_text) return;
+    const finalText = transcribedText.trim();
+    if (!finalText) return;
     
     let blob;
     let filename;
     
     if (format === 'txt') {
-        blob = new Blob([final_text], { type: 'text/plain' });
+        blob = new Blob([finalText], { type: 'text/plain' });
         filename = 'note.txt';
     } else {
-        const content = `<!DOCTYPE html><html><head><meta charset='UTF-8'></head><body>${final_text.replace(/\n/g, '<br>')}</body></html>`;
+        const content = `<!DOCTYPE html><html><head><meta charset='UTF-8'></head><body>${finalText.replace(/\n/g, '<br>')}</body></html>`;
         blob = new Blob([content], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
         filename = 'note.docx';
     }
