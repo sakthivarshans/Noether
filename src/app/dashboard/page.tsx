@@ -11,13 +11,18 @@ import {
   Search,
   Timer,
   Upload,
+  Bell,
 } from 'lucide-react';
 import Link from 'next/link';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Mascot from '@/components/mascot';
 import { Button } from '@/components/ui/button';
 import { quotes } from '@/lib/data';
 import React from 'react';
+import { useTasks } from '@/context/TaskContext';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+import { Badge } from '@/components/ui/badge';
+import { formatDistanceToNow } from 'date-fns';
 
 const tools = [
   { href: '/dashboard/upload', label: 'Upload Document', icon: Upload, description: 'Upload PPT/PDF for AI summaries and flashcards' },
@@ -50,6 +55,58 @@ function QuoteRotator() {
     );
 }
 
+function UpcomingTasks() {
+  const { tasks } = useTasks();
+  const upcomingTasks = tasks.filter(t => !t.completed);
+
+  if (upcomingTasks.length === 0) {
+    return (
+        <div className="text-center py-10">
+          <h2 className="text-2xl font-bold font-headline mb-2 text-foreground/80">Upcoming Tasks</h2>
+          <p className="text-muted-foreground">You're all caught up! No pending tasks.</p>
+        </div>
+    );
+  }
+
+  return (
+    <div className="w-full my-8">
+       <h2 className="text-2xl font-bold font-headline mb-4 text-center text-foreground/80">Upcoming Tasks</h2>
+      <Carousel
+        opts={{
+          align: "start",
+          loop: true,
+        }}
+        className="w-full max-w-4xl mx-auto"
+      >
+        <CarouselContent>
+          {upcomingTasks.map((task) => (
+            <CarouselItem key={task.id} className="md:basis-1/2 lg:basis-1/3">
+              <div className="p-1">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                        <Bell className="w-5 h-5 text-primary" />
+                        {task.title}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Badge variant="secondary">
+                        Due {formatDistanceToNow(new Date(task.deadline), { addSuffix: true })}
+                    </Badge>
+                  </CardContent>
+                </Card>
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        <CarouselPrevious />
+        <CarouselNext />
+      </Carousel>
+    </div>
+  );
+}
+
+
 export default function Dashboard() {
   return (
     <>
@@ -68,6 +125,8 @@ export default function Dashboard() {
         </div>
       </div>
       
+      <UpcomingTasks />
+
       <div className="text-center my-8">
         <h2 className="text-2xl font-bold font-headline mb-2 text-foreground/80">Your Study Tools</h2>
         <QuoteRotator />
@@ -78,7 +137,7 @@ export default function Dashboard() {
           <Link href={tool.href} key={tool.href}>
             <Card className="group h-full p-6 text-center flex flex-col items-center justify-center rounded-3xl transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/20">
               <div 
-                className={`absolute inset-0 rounded-3xl opacity-80 group-hover:opacity-100 transition-opacity duration-300 ${index % 3 === 0 ? 'bg-gradient-to-br from-purple-100 to-blue-100' : index % 3 === 1 ? 'bg-gradient-to-br from-green-100 to-cyan-100' : 'bg-gradient-to-br from-purple-100 to-pink-100'} dark:from-purple-900/20 dark:to-blue-900/20`}>
+                className={`absolute inset-0 rounded-3xl opacity-10 group-hover:opacity-20 transition-opacity duration-300 ${index % 3 === 0 ? 'bg-gradient-to-br from-purple-500 to-blue-500' : index % 3 === 1 ? 'bg-gradient-to-br from-green-500 to-cyan-500' : 'bg-gradient-to-br from-purple-500 to-pink-500'} dark:from-purple-900/20 dark:to-blue-900/20`}>
               </div>
               <div className="relative flex flex-col items-center justify-center">
                   <div className="p-4 bg-white/50 dark:bg-black/20 rounded-full mb-4">

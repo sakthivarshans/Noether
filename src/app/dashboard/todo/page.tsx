@@ -5,47 +5,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PlusCircle, Trash2 } from 'lucide-react';
+import { useTasks } from '@/context/TaskContext';
 
-interface Task {
-  id: number;
-  title: string;
-  deadline: string;
-  completed: boolean;
-}
 
 export default function TodoPage() {
-  const [tasks, setTasks] = useState<Task[]>([
-    { id: 1, title: 'Finish Math Assignment', deadline: '2024-10-26T23:59', completed: false },
-    { id: 2, title: 'Prepare for Physics Quiz', deadline: '2024-10-27T18:00', completed: false },
-    { id: 3, title: 'Read Chapter 5 of History book', deadline: '2024-10-28T12:00', completed: true },
-  ]);
+  const { tasks, addTask, toggleTaskCompletion, deleteTask } = useTasks();
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newDeadline, setNewDeadline] = useState('');
 
   const handleAddTask = () => {
-    if (!newTaskTitle || !newDeadline) return;
-    const newTask: Task = {
-      id: Date.now(),
-      title: newTaskTitle,
-      deadline: newDeadline,
-      completed: false,
-    };
-    setTasks([...tasks, newTask]);
+    addTask(newTaskTitle, newDeadline);
     setNewTaskTitle('');
     setNewDeadline('');
   };
 
-  const toggleTaskCompletion = (id: number) => {
-    setTasks(
-      tasks.map(task =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
-    );
-  };
-  
-  const deleteTask = (id: number) => {
-    setTasks(tasks.filter(task => task.id !== id));
-  };
 
   return (
     <div className="space-y-6">
