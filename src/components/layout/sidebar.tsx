@@ -17,7 +17,7 @@ import {
   Upload,
   User,
   Bed,
-  Sitemap,
+  Waypoints,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Mascot from '@/components/mascot';
@@ -28,7 +28,7 @@ const navItems = [
   { href: '/dashboard/pyq', label: 'PYQ', icon: FileQuestion },
   { href: '/dashboard/notes', label: 'Voice Notes', icon: Mic },
   { href: '/dashboard/search', label: 'Topic Search', icon: Search },
-  { href: '/dashboard/roadmap', label: 'Roadmap', icon: Sitemap },
+  { href: '/dashboard/roadmap', label: 'Roadmap', icon: Waypoints },
 ];
 
 const toolsItems = [
