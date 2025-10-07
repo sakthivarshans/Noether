@@ -6,6 +6,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Mic, MicOff, Download, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
+// Extend the window interface for SpeechRecognition
+declare global {
+  interface Window {
+    SpeechRecognition: any;
+    webkitSpeechRecognition: any;
+  }
+}
+
 export default function VoiceNotesPage() {
   const [isRecording, setIsRecording] = useState(false);
   const [transcribedText, setTranscribedText] = useState('');
@@ -38,17 +46,35 @@ export default function VoiceNotesPage() {
         };
         
         recognition.onend = () => {
-            if (isRecording) {
-              setIsRecording(false);
+            // Check the state before deciding to stop, to avoid race conditions
+            if (recognitionRef.current && isRecording) {
+                setIsRecording(false);
             }
         };
 
         recognition.onerror = (event: any) => {
-            let errorMessage = 'An unknown error occurred.';
-            if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
-              errorMessage = "Microphone access was denied. Please grant permission in your browser's settings.";
-            } else if (event.error === 'no-speech') {
-              errorMessage = "No speech was detected. Please try again.";
+            let errorMessage = `An unknown error occurred (error code: ${event.error}).`;
+            switch (event.error) {
+                case 'not-allowed':
+                case 'service-not-allowed':
+                    errorMessage = "Microphone access was denied. Please grant permission in your browser's settings and try again.";
+                    break;
+                case 'no-speech':
+                    errorMessage = "No speech was detected. Please make sure your microphone is working.";
+                    break;
+                case 'audio-capture':
+                    errorMessage = "Could not capture audio. Please ensure your microphone is connected and not in use by another application.";
+                    break;
+                case 'network':
+                    errorMessage = "A network error occurred. Please check your internet connection.";
+                    break;
+                case 'aborted':
+                    // This can happen if the user stops it manually, so we can often ignore it.
+                    errorMessage = "Recording was aborted.";
+                    break;
+                case 'language-not-supported':
+                    errorMessage = "The language configured for recognition is not supported.";
+                    break;
             }
 
             toast({
@@ -63,7 +89,7 @@ export default function VoiceNotesPage() {
       } else {
          toast({
             title: "Browser Not Supported",
-            description: "Your browser does not support voice recognition.",
+            description: "Your browser does not support the Web Speech API for voice recognition.",
             variant: "destructive",
         });
       }
@@ -75,13 +101,13 @@ export default function VoiceNotesPage() {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [toast]);
+  }, []);
 
   const handleToggleRecording = () => {
     if (!recognitionRef.current) {
       toast({
         title: "Voice recognition is not available.",
-        description: "Your browser may not support this feature.",
+        description: "Your browser may not support this feature or it may be disabled.",
         variant: "destructive",
       });
       return;
@@ -96,12 +122,21 @@ export default function VoiceNotesPage() {
     } else {
       setTranscribedText('');
       setInterimText('');
-      recognitionRef.current.start();
-      setIsRecording(true);
-      toast({
-        title: 'Recording started!',
-        description: 'Start speaking to transcribe your notes.',
-      })
+      try {
+        recognitionRef.current.start();
+        setIsRecording(true);
+        toast({
+            title: 'Recording started!',
+            description: 'Start speaking to transcribe your notes.',
+        })
+      } catch (e: any) {
+        setIsRecording(false);
+        toast({
+            title: "Could not start recording",
+            description: e.message || "Please ensure microphone permissions are enabled.",
+            variant: "destructive",
+        });
+      }
     }
   };
   
