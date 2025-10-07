@@ -12,9 +12,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useFirebase } from '@/firebase';
+import { useFirebase, useUser } from '@/firebase';
 import { signOut } from '@/firebase/auth';
-import { useAuthState } from 'react-firebase-hooks/auth';
 import { LogOut } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -22,7 +21,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 export function UserNav() {
   const router = useRouter();
   const { auth } = useFirebase();
-  const [user, loading] = useAuthState(auth);
+  const { user, isUserLoading } = useUser();
 
   const handleLogout = async () => {
     if (auth) {
@@ -31,7 +30,7 @@ export function UserNav() {
     }
   };
   
-  if (loading) {
+  if (isUserLoading) {
     return (
         <Button variant="ghost" className="relative h-8 w-8 rounded-full" disabled>
             <Skeleton className="h-9 w-9 rounded-full" />

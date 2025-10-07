@@ -5,16 +5,15 @@ import Mascot from '@/components/mascot';
 import { useRouter } from 'next/navigation';
 import { User, LogIn, LogOut } from 'lucide-react';
 import Link from 'next/link';
-import { useFirebase } from '@/firebase';
+import { useFirebase, useUser } from '@/firebase';
 import { useEffect } from 'react';
 import { signInWithGoogle, signOut } from '@/firebase/auth';
-import { useAuthState } from 'react-firebase-hooks/auth';
 
 
 export default function LandingPage() {
   const router = useRouter();
   const { auth } = useFirebase();
-  const [user, loading] = useAuthState(auth);
+  const { user, isUserLoading } = useUser();
 
   useEffect(() => {
     if (user) {
@@ -52,14 +51,14 @@ export default function LandingPage() {
               </Link>
             </Button>
             {user ? (
-              <Button onClick={handleSignOut} disabled={loading}>
+              <Button onClick={handleSignOut} disabled={isUserLoading}>
                 <LogOut className="mr-2 h-4 w-4" />
-                {loading ? 'Loading...' : 'Sign Out'}
+                {isUserLoading ? 'Loading...' : 'Sign Out'}
               </Button>
             ) : (
-              <Button onClick={handleSignIn} disabled={loading}>
+              <Button onClick={handleSignIn} disabled={isUserLoading}>
                  <LogIn className="mr-2 h-4 w-4" />
-                {loading ? 'Loading...' : 'Sign In'}
+                {isUserLoading ? 'Loading...' : 'Sign In'}
               </Button>
             )}
           </nav>
@@ -78,7 +77,7 @@ export default function LandingPage() {
         </p>
         <Button
           onClick={handleSignIn}
-          disabled={loading}
+          disabled={isUserLoading}
           className="mt-10 group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-purple-600 to-blue-500 px-10 py-4 font-medium text-white shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl"
           size="lg"
         >
