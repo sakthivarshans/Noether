@@ -4,10 +4,9 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Upload, FileText, Zap, BrainCircuit, BarChart3, Loader2, RotateCw, Volume2, PlayCircle } from 'lucide-react';
+import { Upload, FileText, Zap, BrainCircuit, BarChart3, Loader2, RotateCw } from 'lucide-react';
 import { summarizeAndHighlightDocument, SummarizeAndHighlightDocumentOutput } from '@/ai/flows/summarize-and-highlight-document';
 import { generateFlashcardsFromDocument } from '@/ai/flows/generate-flashcards-from-document';
-import { generateSpeechFromText } from '@/ai/flows/generate-speech-from-text';
 import { useToast } from '@/hooks/use-toast';
 
 type Flashcard = {
@@ -23,8 +22,6 @@ export default function UploadPage() {
   const [generatedFlashcards, setGeneratedFlashcards] = useState<Flashcard[]>([]);
   const [isGeneratingFlashcards, setIsGeneratingFlashcards] = useState(false);
   const [flippedStates, setFlippedStates] = useState<boolean[]>([]);
-  const [isGeneratingSpeech, setIsGeneratingSpeech] = useState(false);
-  const [audioDataUri, setAudioDataUri] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,7 +30,6 @@ export default function UploadPage() {
       setFileName(file.name);
       setResult(null);
       setGeneratedFlashcards([]);
-      setAudioDataUri(null);
       const reader = new FileReader();
       reader.onload = (loadEvent) => {
         setFileDataUri(loadEvent.target?.result as string);
@@ -47,7 +43,6 @@ export default function UploadPage() {
     setIsProcessing(true);
     setResult(null);
     setGeneratedFlashcards([]);
-    setAudioDataUri(null);
     try {
         const response = await summarizeAndHighlightDocument({ documentDataUri: fileDataUri });
         setResult(response);
@@ -86,29 +81,6 @@ export default function UploadPage() {
     }
   }
 
-  const handleGenerateSpeech = async () => {
-    if (!result || !result.summary) return;
-    setIsGeneratingSpeech(true);
-    setAudioDataUri(null);
-    try {
-      const response = await generateSpeechFromText({ text: result.summary });
-      setAudioDataUri(response.audioDataUri);
-      toast({
-        title: 'Audio Ready!',
-        description: 'The summary is ready to be played.',
-      });
-    } catch (e) {
-      console.error(e);
-      toast({
-        variant: 'destructive',
-        title: 'Could not generate audio',
-        description: 'An error occurred while converting the summary to speech.',
-      });
-    } finally {
-      setIsGeneratingSpeech(false);
-    }
-  };
-
   const handleCardClick = (index: number) => {
     setFlippedStates(prev => {
         const newFlipped = [...prev];
@@ -146,22 +118,11 @@ export default function UploadPage() {
       {result && (
         <div className="grid gap-6 lg:grid-cols-2">
           <Card>
-            <CardHeader className="flex flex-row justify-between items-center">
+            <CardHeader>
               <CardTitle className="flex items-center gap-2"><FileText className="w-5 h-5" /> Summary</CardTitle>
-              <Button onClick={handleGenerateSpeech} variant="outline" size="sm" disabled={isGeneratingSpeech}>
-                {isGeneratingSpeech ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlayCircle className="mr-2 h-4 w-4" />}
-                Play Summary
-              </Button>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">{result.summary}</p>
-              {audioDataUri && (
-                <div className="mt-4">
-                  <audio controls src={audioDataUri} className="w-full">
-                    Your browser does not support the audio element.
-                  </audio>
-                </div>
-              )}
             </CardContent>
           </Card>
 
