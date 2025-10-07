@@ -27,13 +27,15 @@ export default function MusicPage() {
 
   useEffect(() => {
     if (audioRef.current) {
-        if (isPlaying) {
-            audioRef.current.play().catch(error => console.error("Error playing audio:", error));
-        } else {
-            audioRef.current.pause();
-        }
+      if (isPlaying) {
+        audioRef.current.load(); // Load the new track
+        audioRef.current.play().catch(error => console.error("Error playing audio:", error));
+      } else {
+        audioRef.current.pause();
+      }
     }
   }, [isPlaying, currentTrackIndex]);
+
 
   const handlePlayPause = () => {
     setIsPlaying(!isPlaying);
