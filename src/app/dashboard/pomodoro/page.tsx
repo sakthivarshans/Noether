@@ -1,61 +1,14 @@
 'use client';
-import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Play, Pause, RefreshCw } from 'lucide-react';
-
-const WORK_MINUTES = 25;
-const BREAK_MINUTES = 5;
+import { usePomodoro } from '@/context/PomodoroContext';
 
 export default function PomodoroPage() {
-  const [minutes, setMinutes] = useState(WORK_MINUTES);
-  const [seconds, setSeconds] = useState(0);
-  const [isActive, setIsActive] = useState(false);
-  const [isBreak, setIsBreak] = useState(false);
+  const { minutes, seconds, isActive, isBreak, toggle, reset } = usePomodoro();
 
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-    if (isActive) {
-      interval = setInterval(() => {
-        if (seconds === 0) {
-          if (minutes === 0) {
-            // Timer ended
-            if (isBreak) {
-              setMinutes(WORK_MINUTES);
-              setIsBreak(false);
-            } else {
-              setMinutes(BREAK_MINUTES);
-              setIsBreak(true);
-            }
-            setSeconds(0);
-            setIsActive(false);
-            // Optional: Play a sound
-          } else {
-            setMinutes(minutes - 1);
-            setSeconds(59);
-          }
-        } else {
-          setSeconds(seconds - 1);
-        }
-      }, 1000);
-    } else if (!isActive && seconds !== 0) {
-      if (interval) clearInterval(interval);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isActive, seconds, minutes, isBreak]);
-
-  const toggle = () => {
-    setIsActive(!isActive);
-  };
-
-  const reset = () => {
-    setIsActive(false);
-    setIsBreak(false);
-    setMinutes(WORK_MINUTES);
-    setSeconds(0);
-  };
+  const WORK_MINUTES = 25;
+  const BREAK_MINUTES = 5;
 
   return (
     <div className="flex items-center justify-center">
