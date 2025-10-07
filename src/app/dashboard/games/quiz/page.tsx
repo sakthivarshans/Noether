@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -41,6 +41,15 @@ export default function MathQuizPage() {
   const [feedback, setFeedback] = useState<'correct' | 'incorrect' | null>(null);
   const [questionsAnswered, setQuestionsAnswered] = useState(0);
   const { addPoints } = usePoints();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    // Focus the input when a new problem is shown and there's no feedback
+    if (!feedback && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [problem, feedback]);
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,6 +82,7 @@ export default function MathQuizPage() {
 
           <form onSubmit={handleSubmit} className="w-full flex items-center space-x-2">
             <Input
+              ref={inputRef}
               type="text"
               placeholder="Your answer"
               value={userAnswer}
