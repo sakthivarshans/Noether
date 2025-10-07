@@ -24,6 +24,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow } from 'date-fns';
 import Autoplay from "embla-carousel-autoplay";
+import { StreakTracker } from '@/components/dashboard/StreakTracker';
 
 const tools = [
   { href: '/dashboard/upload', label: 'Upload Document', icon: Upload, description: 'Upload PPT/PDF for AI summaries and flashcards' },
@@ -86,7 +87,7 @@ function UpcomingTasks() {
       >
         <CarouselContent>
           {upcomingTasks.map((task) => (
-            <CarouselItem key={task.id}>
+            <CarouselItem key={task.id} className="md:basis-1/2 lg:basis-1/3">
               <div className="p-1">
                 <Card className="bg-gradient-to-r from-background to-secondary/50">
                   <CardHeader>
@@ -126,8 +127,11 @@ export default function Dashboard() {
             </Link>
           </Button>
         </div>
-        <div className="w-40 h-40 md:w-48 md:h-48">
-          <Mascot />
+        <div className="flex items-center gap-4">
+          <StreakTracker />
+          <div className="w-40 h-40 md:w-48 md:h-48">
+            <Mascot />
+          </div>
         </div>
       </div>
       
