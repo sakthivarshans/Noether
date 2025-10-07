@@ -306,8 +306,10 @@ export default function SudokuPage() {
             <div className="flex flex-col lg:flex-row gap-6 items-center">
               <div className="flex-shrink-0">
                 <div className="grid grid-cols-9 bg-secondary dark:bg-background rounded-md p-1.5 gap-0.5">
-                  {board?.map((row, rIndex) =>
-                    row.map((cell, cIndex) => (
+                {(board || []).flat().map((cell, index) => {
+                    const rIndex = Math.floor(index / 9);
+                    const cIndex = index % 9;
+                    return (
                       <div
                         key={`${rIndex}-${cIndex}`}
                         onClick={() => handleCellClick(rIndex, cIndex)}
@@ -325,8 +327,8 @@ export default function SudokuPage() {
                       >
                         {cell !== 0 ? cell : ''}
                       </div>
-                    ))
-                  )}
+                    )
+                  })}
                 </div>
               </div>
               <div className="w-full lg:w-auto flex flex-col gap-4">
