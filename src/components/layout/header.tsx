@@ -17,6 +17,7 @@ const navItems = [
     { href: '/dashboard/pyq', label: 'PYQ' },
     { href: '/dashboard/notes', label: 'Voice Notes' },
     { href: '/dashboard/search', label: 'Topic Search' },
+    { href: '/dashboard/roadmap', label: 'Roadmap' },
     { href: '/dashboard/timetable', label: 'Timetable' },
     { href: '/dashboard/todo', label: 'To-Do List' },
     { href: '/dashboard/pomodoro', label: 'Pomodoro' },
@@ -46,7 +47,7 @@ export function Header() {
               <div className="w-8 h-8"><Mascot/></div>
               <span className="font-brand text-2xl text-primary">Noether</span>
             </Link>
-            {navItems.map(item => (
+            {navItems.sort((a,b) => a.label.localeCompare(b.label)).map(item => (
                 <Link
                 key={item.href}
                 href={item.href}

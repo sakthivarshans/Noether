@@ -12,6 +12,7 @@ import {
   Timer,
   Upload,
   Bell,
+  Sitemap,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,6 +32,7 @@ const tools = [
   { href: '/dashboard/timetable', label: 'Timetable', icon: Calendar, description: 'Generate your personalized study schedule' },
   { href: '/dashboard/todo', label: 'To-Do List', icon: ListTodo, description: 'Track assignments and deadlines' },
   { href: '/dashboard/flashcards', label: 'Flashcards', icon: BookOpen, description: 'Review with AI-generated flashcards' },
+  { href: '/dashboard/roadmap', label: 'Learning Roadmap', icon: Sitemap, description: 'Generate a learning path for a new topic' },
   { href: '/dashboard/games', label: 'Games', icon: Puzzle, description: 'Take a brain break with fun games' },
   { href: '/dashboard/music', label: 'Focus Music', icon: Music, description: 'Listen to concentration-boosting tracks' },
   { href: '/dashboard/pyq', label: 'PYQ Answers', icon: FileQuestion, description: 'Get AI-generated answers for past papers' },
