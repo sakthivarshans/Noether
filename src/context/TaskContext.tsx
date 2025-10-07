@@ -36,10 +36,15 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
   const { toast } = useToast();
   const [notifiedTasks, setNotifiedTasks] = useState<string[]>([]);
 
+  const tasksCollectionPath = useMemo(() => {
+    if (!user) return null;
+    return `users/${user.uid}/todoTasks`;
+  }, [user]);
+
   const tasksQuery = useMemoFirebase(() => {
-    if (!user || !firestore) return null;
-    return query(collection(firestore, 'todoTasks'), where('userId', '==', user.uid));
-  }, [user, firestore]);
+    if (!tasksCollectionPath || !firestore) return null;
+    return collection(firestore, tasksCollectionPath);
+  }, [tasksCollectionPath, firestore]);
 
   const { data: tasks = [], isLoading } = useCollection<Omit<Task, 'id'>>(tasksQuery);
 
@@ -69,28 +74,28 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
   }, [tasks, toast, notifiedTasks, isLoading]);
 
   const addTask = (title: string, deadline: string) => {
-    if (!title || !deadline || !user || !firestore) return;
+    if (!title || !deadline || !user || !firestore || !tasksCollectionPath) return;
     const newTask = {
       title,
       deadline,
       completed: false,
       userId: user.uid,
     };
-    const collectionRef = collection(firestore, 'todoTasks');
+    const collectionRef = collection(firestore, tasksCollectionPath);
     addDocumentNonBlocking(collectionRef, newTask);
   };
 
   const toggleTaskCompletion = (id: string) => {
-    if (!firestore) return;
+    if (!firestore || !tasksCollectionPath) return;
     const task = tasks.find(t => t.id === id);
     if (!task) return;
-    const docRef = doc(firestore, 'todoTasks', id);
+    const docRef = doc(firestore, tasksCollectionPath, id);
     updateDocumentNonBlocking(docRef, { completed: !task.completed });
   };
 
   const deleteTask = (id: string) => {
-    if (!firestore) return;
-    const docRef = doc(firestore, 'todoTasks', id);
+    if (!firestore || !tasksCollectionPath) return;
+    const docRef = doc(firestore, tasksCollectionPath, id);
     deleteDocumentNonBlocking(docRef);
   };
 
@@ -99,7 +104,8 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
     addTask,
     toggleTaskCompletion,
     deleteTask,
-  }), [tasks]);
+  }), [tasks, addTask, toggleTaskCompletion, deleteTask]);
+
 
   return (
     <TaskContext.Provider value={contextValue}>
